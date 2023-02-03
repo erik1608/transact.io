@@ -12,9 +12,15 @@ import java.util.Optional;
 
 @Component
 public class AlexaLaunchRequestHandler extends BaseRequestHandler {
-	private static final String LAUNCH_RESPONSE = "Welcome to Transact.IO. You can ask for your account balance information, or to send money to any configured recipient. What action would you like to perform?";
+	private static final String LAUNCH_RESPONSE = "Welcome to Transact.IO." +
+			" You can ask for your account balance information," +
+			" or to send money to any configured recipient." +
+			" What action would you like to perform?";
 
-	public AlexaLaunchRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public AlexaLaunchRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 	}
 

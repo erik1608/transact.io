@@ -10,7 +10,10 @@ import org.springframework.context.ApplicationContext;
 import java.util.Optional;
 
 public class HelloRequestHandler extends BaseRequestHandler {
-	public HelloRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public HelloRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 	}
 

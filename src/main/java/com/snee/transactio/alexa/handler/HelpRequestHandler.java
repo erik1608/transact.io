@@ -13,7 +13,10 @@ import java.util.Optional;
 public class HelpRequestHandler extends BaseRequestHandler {
 	private static Logger LOG = LogManager.getLogger(HelpRequestHandler.class);
 
-	public HelpRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public HelpRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 	}
 

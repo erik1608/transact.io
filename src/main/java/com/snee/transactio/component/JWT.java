@@ -71,14 +71,17 @@ public class JWT {
 		claimsBuilder.subject(sub);
 		claimsBuilder.expirationTime(exp);
 
-		OctetSequenceKey jwk = new OctetSequenceKey.Builder(new Base64URL(DEFAULT_ENC_KEY))
+		OctetSequenceKey jwk = new OctetSequenceKey
+				.Builder(new Base64URL(DEFAULT_ENC_KEY))
 				.keyUse(KeyUse.SIGNATURE)
 				.keyID("hs_256_sig_key")
 				.algorithm(Algorithm.parse(DEFAULT_JWS_ALGO.getName()))
 				.build();
 
 		MACSigner signer = new MACSigner(jwk);
-		JWSHeader jwsHeader = new JWSHeader.Builder(DEFAULT_JWS_ALGO).keyID(jwk.getKeyID()).build();
+		JWSHeader jwsHeader = new JWSHeader
+				.Builder(DEFAULT_JWS_ALGO)
+				.keyID(jwk.getKeyID()).build();
 
 		SignedJWT jwt = new SignedJWT(jwsHeader, claimsBuilder.build());
 		jwt.sign(signer);
@@ -91,14 +94,17 @@ public class JWT {
 	 * @return The {@link JWTClaimsSet} obtained from the token.
 	 */
 	public JWTClaimsSet validate(String jwtToken) throws BadJOSEException, ParseException, JOSEException {
-		OctetSequenceKey jwk = new OctetSequenceKey.Builder(new Base64URL(DEFAULT_ENC_KEY))
+		OctetSequenceKey jwk = new OctetSequenceKey
+				.Builder(new Base64URL(DEFAULT_ENC_KEY))
 				.keyUse(KeyUse.SIGNATURE)
 				.keyID("hs_256_sig_key")
 				.algorithm(Algorithm.parse(DEFAULT_JWS_ALGO.getName()))
 				.build();
 
 		ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-		jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(DEFAULT_JWS_ALGO, new ImmutableJWKSet<>(new JWKSet(jwk))));
+		jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(
+				DEFAULT_JWS_ALGO, new ImmutableJWKSet<>(new JWKSet(jwk))
+		));
 		return jwtProcessor.process(jwtToken, null);
 	}
 }

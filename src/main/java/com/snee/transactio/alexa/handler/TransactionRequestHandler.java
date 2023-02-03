@@ -29,7 +29,10 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 	private final PushNotificationService mPushNotificationService;
 	private final TransactionService mTransactionService;
 
-	public TransactionRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public TransactionRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 		mPushNotificationService = applicationContext.getBean(PushNotificationService.class);
 		mTransactionService = applicationContext.getBean(TransactionService.class);
@@ -48,7 +51,10 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 					.withSpeech("Please link your account with me")
 					.withLinkAccountCard().build();
 		}
-		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ").append(user.getFirstname()).append(" ").append(user.getLastname());
+		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+				.append(user.getFirstname())
+				.append(" ")
+				.append(user.getLastname());
 		IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
 		Map<String, Slot> slots = intentRequest.getIntent().getSlots();
 		int transactionAmount = Integer.parseInt(slots.get(SlotName.TRANS_AMOUNT).getValue());
@@ -64,15 +70,24 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 			}
 
 			if (friendMap == null) {
-				String response = String.format("The user with alias %s is not associated with you. " +
-						"Make sure that the user you are looking for transaction is in your friends list and has pronounceable alias.", recipientAlias);
-				return handlerInput.getResponseBuilder().withSpeech(response).withSimpleCard(CARD_TITLE, response).build();
+				String response = String.format(
+						"The user with alias %s is not associated with you. " +
+						"Make sure that the user you are looking for transaction is in " +
+								"your friends list and has pronounceable alias.", recipientAlias
+				);
+				return handlerInput.getResponseBuilder()
+						.withSpeech(response)
+						.withSimpleCard(CARD_TITLE, response)
+						.build();
 			}
 
 			UserAccount account = user.getAccountByName(outgoingAccountName);
 			if (account == null) {
 				responseSpeechBuilder.append(", the requested ").append(outgoingAccountName).append(" is unknown to your profile.");
-				return handlerInput.getResponseBuilder().withSpeech(responseSpeechBuilder.toString()).withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString()).build();
+				return handlerInput.getResponseBuilder()
+						.withSpeech(responseSpeechBuilder.toString())
+						.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+						.build();
 			}
 
 			User recipient = friendMap.getFriend();
@@ -88,22 +103,42 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 			}
 
 			if (biometryEligibleDevice == null) {
-				String message = "You don't have a device that is eligible for transaction confirmation, please register a biometric credential and try again.";
+				String message = "You don't have a device that is eligible for transaction " +
+						"confirmation, please register a biometric credential and try again.";
+
 				return handlerInput.getResponseBuilder()
 						.withSpeech(message)
 						.withSimpleCard(CARD_TITLE, message).build();
 			}
 
-			Transaction transaction = mTransactionService.performTransaction(user, account, recipient, recipientAccount, transactionAmount);
+			Transaction transaction = mTransactionService.performTransaction(
+					user,
+					account,
+					recipient,
+					recipientAccount,
+					transactionAmount
+			);
+
 			HashMap<String, String> details = new HashMap<>();
 			details.put("transactionId", transaction.getTransactionId());
 			details.put("type", "transactionConfirmation");
 
-			mPushNotificationService.sendNotification("Confirm the transaction", String.format("Confirm transaction with total amount %d made using Alexa", transactionAmount), details, biometryEligibleDevice);
+			mPushNotificationService.sendNotification(
+					"Confirm the transaction",
+					String.format("Confirm transaction with total amount %d made using Alexa", transactionAmount),
+					details,
+					biometryEligibleDevice
+			);
 			responseSpeechBuilder.append(", a push notification has been sent to your device, please complete the transaction for the funds to be transferred.");
-			return handlerInput.getResponseBuilder().withSpeech(responseSpeechBuilder.toString()).withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString()).build();
+			return handlerInput.getResponseBuilder()
+					.withSpeech(responseSpeechBuilder.toString())
+					.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+					.build();
 		}
 
-		return handlerInput.getResponseBuilder().withSpeech("Failed to process the request").withSimpleCard(CARD_TITLE, "Failed to process the request").build();
+		return handlerInput.getResponseBuilder()
+				.withSpeech("Failed to process the request")
+				.withSimpleCard(CARD_TITLE, "Failed to process the request")
+				.build();
 	}
 }

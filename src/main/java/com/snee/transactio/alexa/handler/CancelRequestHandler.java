@@ -10,7 +10,10 @@ import java.util.Optional;
 
 public class CancelRequestHandler extends BaseRequestHandler {
 
-	public CancelRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public CancelRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 	}
 

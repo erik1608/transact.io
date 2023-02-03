@@ -15,7 +15,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
-	public AccountBalanceRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public AccountBalanceRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		super(clientAdapter, applicationContext);
 	}
 
@@ -28,7 +31,10 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 	public Optional<Response> handle(HandlerInput handlerInput) {
 		User user = getUser(handlerInput);
 		if (user == null) {
-			return handlerInput.getResponseBuilder().withSpeech("Please link your account with me").withLinkAccountCard().build();
+			return handlerInput.getResponseBuilder()
+					.withSpeech("Please link your account with me")
+					.withLinkAccountCard()
+					.build();
 		}
 		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ").append(user.getFirstname()).append(" ").append(user.getLastname());
 		IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
@@ -37,11 +43,18 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 		String accountType = accountTypeSlot.getValue();
 		UserAccount foundAccount = user.getAccountByName(accountType);
 		if (foundAccount == null) {
-			responseSpeechBuilder.append(", the requested ").append(accountType).append(" is unknown to your profile.");
+			responseSpeechBuilder.append(", the requested ")
+					.append(accountType)
+					.append(" is unknown to your profile.");
 		} else {
-			responseSpeechBuilder.append(", you have ").append(foundAccount.getBalance()).append(" credits on your ").append(accountType).append(".");
+			responseSpeechBuilder.append(", you have ")
+					.append(foundAccount.getBalance())
+					.append(" credits on your ").append(accountType).append(".");
 		}
 
-		return handlerInput.getResponseBuilder().withSpeech(responseSpeechBuilder.toString()).withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString()).build();
+		return handlerInput.getResponseBuilder()
+				.withSpeech(responseSpeechBuilder.toString())
+				.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+				.build();
 	}
 }

@@ -18,7 +18,10 @@ public abstract class BaseRequestHandler implements RequestHandler {
 	protected final OAuthAdapter clientAdapter;
 	protected final ApplicationContext applicationContext;
 
-	public BaseRequestHandler(OAuthAdapter clientAdapter, ApplicationContext applicationContext) {
+	public BaseRequestHandler(
+			OAuthAdapter clientAdapter,
+			ApplicationContext applicationContext
+	) {
 		this.clientAdapter = clientAdapter;
 		this.applicationContext = applicationContext;
 	}
@@ -30,7 +33,10 @@ public abstract class BaseRequestHandler implements RequestHandler {
 	public abstract Optional<Response> handle(HandlerInput handlerInput);
 
 	protected User getUser(HandlerInput input) {
-		String accessTokenStr = input.getRequestEnvelope().getSession().getUser().getAccessToken();
+		String accessTokenStr = input.getRequestEnvelope()
+				.getSession()
+				.getUser()
+				.getAccessToken();
 		LOG.info("Received request with access token: " + accessTokenStr);
 		if (accessTokenStr == null) {
 			return null;
