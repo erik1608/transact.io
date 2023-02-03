@@ -1,35 +1,35 @@
 package com.snee.transactio.service;
 
-import com.etd.rest.config.PasswordHashConfig;
-import com.etd.rest.db.entities.user.User;
-import com.etd.rest.db.entities.user.UserAccount;
-import com.etd.rest.db.entities.user.UserDevice;
-import com.etd.rest.db.entities.user.UserPassword;
-import com.etd.rest.db.entities.user.UserRelationMapping;
-import com.etd.rest.db.repo.Repos;
-import com.etd.rest.db.repo.UserFriendsRepo;
-import com.etd.rest.db.repo.UsersAccountRepo;
-import com.etd.rest.db.repo.UsersDeviceRepo;
-import com.etd.rest.db.repo.UsersPasswordRepo;
-import com.etd.rest.db.repo.UsersRepo;
-import com.etd.rest.exceptions.RequestValidationException;
-import com.etd.rest.model.Session;
-import com.etd.rest.model.request.Device;
-import com.etd.rest.model.request.RegistrationRequest;
-import com.etd.rest.model.request.UserFriendRequest;
-import com.etd.rest.model.response.RegistrationResponse;
-import com.etd.rest.model.response.UserFriendsResponse;
+import com.snee.transactio.config.PasswordHashConfig;
+import com.snee.transactio.db.entities.user.User;
+import com.snee.transactio.db.entities.user.UserAccount;
+import com.snee.transactio.db.entities.user.UserDevice;
+import com.snee.transactio.db.entities.user.UserPassword;
+import com.snee.transactio.db.entities.user.UserRelationMapping;
+import com.snee.transactio.db.repo.Repos;
+import com.snee.transactio.db.repo.UserFriendsRepo;
+import com.snee.transactio.db.repo.UsersAccountRepo;
+import com.snee.transactio.db.repo.UsersDeviceRepo;
+import com.snee.transactio.db.repo.UsersPasswordRepo;
+import com.snee.transactio.db.repo.UsersRepo;
+import com.snee.transactio.exceptions.RequestValidationException;
+import com.snee.transactio.model.Session;
 import com.snee.transactio.model.request.Device;
+import com.snee.transactio.model.request.RegistrationRequest;
+import com.snee.transactio.model.request.UserFriendRequest;
+import com.snee.transactio.model.response.RegistrationResponse;
+import com.snee.transactio.model.response.UserFriendsResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.transaction.Transactional;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -46,21 +46,13 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 @Service
 public class UserHandlerService {
 
-	public final static ExampleMatcher USERNAME_MATCHER = ExampleMatcher.matchingAny()
-			.withIgnorePaths("id")
-			.withMatcher("username", ignoreCase());
+	public final static ExampleMatcher USERNAME_MATCHER = ExampleMatcher.matchingAny().withIgnorePaths("id").withMatcher("username", ignoreCase());
 
-	public final static ExampleMatcher EMAIL_MATCHER = ExampleMatcher.matchingAny()
-			.withIgnorePaths("id", "username")
-			.withMatcher("email", ignoreCase());
+	public final static ExampleMatcher EMAIL_MATCHER = ExampleMatcher.matchingAny().withIgnorePaths("id", "username").withMatcher("email", ignoreCase());
 
-	private final static ExampleMatcher ACCOUNT_NUMBER_MATCHER = ExampleMatcher.matchingAny()
-			.withIgnorePaths("id")
-			.withMatcher("number", ignoreCase());
+	private final static ExampleMatcher ACCOUNT_NUMBER_MATCHER = ExampleMatcher.matchingAny().withIgnorePaths("id").withMatcher("number", ignoreCase());
 
-	private final static ExampleMatcher DEVICE_MATCHER = ExampleMatcher.matchingAny()
-			.withIgnorePaths("id")
-			.withMatcher("deviceId", ignoreCase());
+	private final static ExampleMatcher DEVICE_MATCHER = ExampleMatcher.matchingAny().withIgnorePaths("id").withMatcher("deviceId", ignoreCase());
 
 	private final UsersRepo mUsersRepo;
 	private final UsersPasswordRepo mUserPwdRepo;
@@ -75,9 +67,7 @@ public class UserHandlerService {
 	@Value("${account.prefix.number}")
 	private String DEFAULT_ACCOUNT_PREFIX;
 
-	public UserHandlerService(Repos repos,
-	                          PasswordHashConfig hashConfig,
-	                          PushNotificationService pushService) {
+	public UserHandlerService(Repos repos, PasswordHashConfig hashConfig, PushNotificationService pushService) {
 		mPushService = pushService;
 		mPwdHashConfig = hashConfig;
 		mUsersRepo = repos.get(UsersRepo.class);
@@ -109,19 +99,13 @@ public class UserHandlerService {
 			throw new RequestValidationException("User with the email already exists");
 		}
 
-		user.setFirstname(request.getFirstname())
-				.setLastname(request.getLastname())
-				.setPhoneNumber(request.getPhoneNumber())
-				.setDob(request.getDateOfBirth());
+		user.setFirstname(request.getFirstname()).setLastname(request.getLastname()).setPhoneNumber(request.getPhoneNumber()).setDob(request.getDateOfBirth());
 		UserPassword userPassword = new UserPassword();
 
 		byte[] salt = new byte[Integer.parseInt(mPwdHashConfig.getSaltLength())];
 		SecureRandom secureRandom = new SecureRandom();
 		secureRandom.nextBytes(salt);
-		userPassword.setAlgorithm(mPwdHashConfig.getAlgo())
-				.setSalt(Base64.getEncoder().encodeToString(salt))
-				.setIterCount(Integer.parseInt(mPwdHashConfig.getIterCount()))
-				.setHash(hashPassword(userPassword, request.getPassword()));
+		userPassword.setAlgorithm(mPwdHashConfig.getAlgo()).setSalt(Base64.getEncoder().encodeToString(salt)).setIterCount(Integer.parseInt(mPwdHashConfig.getIterCount())).setHash(hashPassword(userPassword, request.getPassword()));
 
 		mUserPwdRepo.save(userPassword);
 
@@ -138,10 +122,7 @@ public class UserHandlerService {
 			user.setUserDeviceList(new ArrayList<>(Collections.singleton(newDevice)));
 		}
 
-		UserAccount userAccount = new UserAccount().setName("Checking account")
-				.setPrimary(true)
-				.setBalance(10000)
-				.setNumber(generateAccountRecord());
+		UserAccount userAccount = new UserAccount().setName("Checking account").setPrimary(true).setBalance(10000).setNumber(generateAccountRecord());
 
 		List<UserAccount> userAccounts = new ArrayList<>();
 		userAccounts.add(userAccount);
@@ -152,8 +133,7 @@ public class UserHandlerService {
 		userAccount.setUserId(user.getId());
 		mUserAccountsRepo.save(userAccount);
 
-		response.setStatus(HttpStatus.CREATED)
-				.setMessage("User registered successfully");
+		response.setStatus(HttpStatus.CREATED).setMessage("User registered successfully");
 		return user;
 	}
 
@@ -177,11 +157,7 @@ public class UserHandlerService {
 	 * @return {@link User} the object of the user information.
 	 */
 	public User getUser(String userId) {
-		return mUsersRepo.findByUsername(userId)
-				.orElseGet(() -> mUsersRepo
-						.findByEmail(userId)
-						.orElse(null)
-				);
+		return mUsersRepo.findByUsername(userId).orElseGet(() -> mUsersRepo.findByEmail(userId).orElse(null));
 	}
 
 	/**
@@ -194,9 +170,7 @@ public class UserHandlerService {
 		Example<UserAccount> userAccountExample = Example.of(userAccount, ACCOUNT_NUMBER_MATCHER);
 		Optional<UserAccount> optionalUserAccount = mUserAccountsRepo.findOne(userAccountExample);
 		//noinspection OptionalGetWithoutIsPresent
-		return optionalUserAccount.map(account ->
-				mUsersRepo.findById(account.getUserId()).get()
-		).orElse(null);
+		return optionalUserAccount.map(account -> mUsersRepo.findById(account.getUserId()).get()).orElse(null);
 	}
 
 	public UserFriendsResponse sendFriendRequest(Session cUserSession, UserFriendRequest request) {
@@ -221,14 +195,10 @@ public class UserHandlerService {
 
 		UserRelationMapping friendRequest = new UserRelationMapping();
 		{
-			mUserFriendsRepo.save(friendRequest.setAlias(currentUser.getFirstname())
-					.setFriend(currentUser)
-					.setStatus(UserFriendRequest.REQUEST_STATUS_PENDING));
+			mUserFriendsRepo.save(friendRequest.setAlias(currentUser.getFirstname()).setFriend(currentUser).setStatus(UserFriendRequest.REQUEST_STATUS_PENDING));
 		}
 
-		String detailsText = currentUser.getUsername() +
-				" (" + currentUser.getFirstname() + " " + currentUser.getLastname() + ") " +
-				" has sent you a friend request.";
+		String detailsText = currentUser.getUsername() + " (" + currentUser.getFirstname() + " " + currentUser.getLastname() + ") " + " has sent you a friend request.";
 
 		List<UserDevice> requestedUserDevices = userToRequest.getUserDevices();
 		HashMap<String, String> details = new HashMap<>();
@@ -308,6 +278,9 @@ public class UserHandlerService {
 	}
 
 	public UserFriendsResponse deleteUsersFriend(Session cUserSession, UserFriendRequest request) {
+		Assert.notNull(cUserSession, "The session cannot be null.");
+		Assert.notNull(request, "The request cannot be null.");
+
 		// TODO implement.
 		return new UserFriendsResponse();
 	}
@@ -374,12 +347,6 @@ public class UserHandlerService {
 	}
 
 	private UserDevice createUserDevice(Device device) {
-		return new UserDevice()
-				.setDeviceId(device.getDeviceId())
-				.setModel(device.getModel())
-				.setManufacturer(device.getManufacturer())
-				.setVersion(device.getVersion())
-				.setPlatform(device.getPlatform())
-				.setPushRegistrationId(device.getPush().getRegistrationId());
+		return new UserDevice().setDeviceId(device.getDeviceId()).setModel(device.getModel()).setManufacturer(device.getManufacturer()).setVersion(device.getVersion()).setPlatform(device.getPlatform()).setPushRegistrationId(device.getPush().getRegistrationId());
 	}
 }

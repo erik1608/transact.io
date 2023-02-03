@@ -1,6 +1,5 @@
 package com.snee.transactio.service;
 
-import com.etd.rest.db.entities.user.UserDevice;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;

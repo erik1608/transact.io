@@ -1,14 +1,5 @@
 package com.snee.transactio.service;
 
-import com.etd.rest.db.entities.transaction.Transaction;
-import com.etd.rest.db.entities.user.User;
-import com.etd.rest.db.entities.user.UserAccount;
-import com.etd.rest.db.entities.user.UserDevice;
-import com.etd.rest.db.repo.Repos;
-import com.etd.rest.db.repo.TransactionRepo;
-import com.etd.rest.db.repo.UsersAccountRepo;
-import com.etd.rest.exceptions.RequestValidationException;
-import com.etd.rest.model.response.TransactionResponse;
 import com.snee.transactio.db.entities.transaction.Transaction;
 import com.snee.transactio.db.entities.user.User;
 import com.snee.transactio.db.entities.user.UserAccount;
@@ -17,6 +8,7 @@ import com.snee.transactio.db.repo.Repos;
 import com.snee.transactio.db.repo.TransactionRepo;
 import com.snee.transactio.db.repo.UsersAccountRepo;
 import com.snee.transactio.exceptions.RequestValidationException;
+import com.snee.transactio.model.response.TransactionResponse;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
