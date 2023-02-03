@@ -45,7 +45,7 @@ mvn spring-boot:run
 ```
 
 The server will start up at default ``:8080`` port.
-To modify the server port, edit the <a href="src/main/resources/application.yml">application.yml</a> and the port in the
+To modify the server port, edit the <a href="src/main/resources/application.yml#L5">application.yml</a> and the port in the
 following property. E.g.:
 
 ```yaml
