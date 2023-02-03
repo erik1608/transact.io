@@ -12,8 +12,11 @@
     <artifactId>transactio</artifactId>
     <version>0.0.1</version>
     <packaging>war</packaging>
-    <name>rest</name>
-    <description>rest</description>
+    <name>transactio</name>
+    <description>
+        This is the RestAPI part of a POC application, that is capable of performing transactions using linked Amazon Alexa user voice profile
+        and the registered biometric credential used to validate the account owner.
+    </description>
     <properties>
         <java.version>11</java.version>
         <project.build.finalName>transactio</project.build.finalName>
