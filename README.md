@@ -1,4 +1,4 @@
-<p style="text-align: center">
+<p align="">
   <img src="src/main/resources/static/img/brand/transactio-logo-no-background.png" alt="Logo" height="300" />
 </p>
 
