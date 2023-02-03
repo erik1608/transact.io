@@ -16,7 +16,7 @@
     <description>rest</description>
     <properties>
         <java.version>11</java.version>
-        <project.build.finalName>rest</project.build.finalName>
+        <project.build.finalName>transactio</project.build.finalName>
     </properties>
     <dependencies>
         <!--suppress VulnerableLibrariesLocal-->
@@ -244,6 +244,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -255,5 +256,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
