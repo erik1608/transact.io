@@ -6,15 +6,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class RestfulApiApplication extends SpringBootServletInitializer {
+public class TransactIO extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(RestfulApiApplication.class, args);
+		SpringApplication.run(TransactIO.class, args);
 	}
-
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(RestfulApiApplication.class);
+		return application.sources(TransactIO.class);
 	}
 }
