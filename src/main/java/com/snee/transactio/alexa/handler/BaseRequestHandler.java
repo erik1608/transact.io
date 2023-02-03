@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContext;
 import java.util.Optional;
 
 public abstract class BaseRequestHandler implements RequestHandler {
-	protected static final String CARD_TITLE = "Erik's diploma skill";
+	protected static final String CARD_TITLE = "Transact.IO";
 
 	protected final Logger LOG = LogManager.getLogger(this.getClass());
 	protected final OAuthAdapter clientAdapter;
