@@ -44,10 +44,8 @@ public class BiometricRequest implements RequestModel {
 			}
 		}
 
-		if (!operation.isInit() && operation != BiometricOperation.DELETE_REG) {
-			if (message == null || message.isEmpty()) {
-				throw new RequestValidationException("Message is required");
-			}
+		if (!operation.isInit() && operation != BiometricOperation.DELETE_REG && (message == null || message.isEmpty())) {
+			throw new RequestValidationException("Message is required");
 		}
 
 		if (deviceInfo == null) {

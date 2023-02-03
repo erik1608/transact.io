@@ -172,7 +172,7 @@ public class User {
 
 	public UserAccount getAccountByName(String accountName) {
 		for (UserAccount account : userAccounts) {
-			if (account.getName().toLowerCase().equals(accountName)) {
+			if (account.getName().equalsIgnoreCase(accountName)) {
 				return account;
 			}
 		}

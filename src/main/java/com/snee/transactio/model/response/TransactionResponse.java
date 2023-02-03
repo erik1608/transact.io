@@ -61,4 +61,12 @@ public class TransactionResponse {
 		this.sessionData = sessionData;
 		return this;
 	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public String getRecipientAccountNumber() {
+		return recipientAccountNumber;
+	}
 }

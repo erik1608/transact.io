@@ -15,7 +15,7 @@ public final class Repos {
 	private final BiometricsRepo mBiometricsRepo;
 	private final UserFriendsRepo mUserFriendsRepo;
 
-	private Repos(UsersRepo usersRepo,
+	public Repos(UsersRepo usersRepo,
 	              UsersPasswordRepo usersPwdRepo,
 	              UsersAccountRepo usersAccountRepo,
 	              UsersDeviceRepo usersDeviceRepo,

@@ -67,10 +67,8 @@ public class UserFriendRequest implements RequestModel {
 			throw new RequestValidationException("Username is required");
 		}
 
-		if (alias != null) {
-			if (alias.isEmpty()) {
-				throw new RequestValidationException("If alias is provided it should not be empty.");
-			}
+		if (alias != null && alias.isEmpty()) {
+			throw new RequestValidationException("If alias is provided it should not be empty.");
 		}
 	}
 
