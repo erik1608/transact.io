@@ -19,7 +19,7 @@ import com.snee.transactio.model.request.RegistrationRequest;
 import com.snee.transactio.model.request.UserFriendRequest;
 import com.snee.transactio.model.response.RegistrationResponse;
 import com.snee.transactio.model.response.UserFriendsResponse;
-import jakarta.transaction.Transactional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;

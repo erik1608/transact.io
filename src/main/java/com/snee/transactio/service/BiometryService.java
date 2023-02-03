@@ -18,8 +18,8 @@ import com.snee.transactio.model.response.biometry.auth.InitAuthenticationRespon
 import com.snee.transactio.model.response.biometry.reg.DeleteRegistrationResponse;
 import com.snee.transactio.model.response.biometry.reg.FinishRegistrationResponse;
 import com.snee.transactio.model.response.biometry.reg.InitRegistrationResponse;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Service;
 
