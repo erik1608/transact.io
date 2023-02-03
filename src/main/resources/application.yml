@@ -1,0 +1,91 @@
+# Server configurations:
+api:
+  prefix: /api/v1
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+  enc:
+    key: huJ5N3eUL321_ExcEYv2Nn1SSgdqTEmKBb2fMTOs-HA
+
+# Spring datasource and binding configurations.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/alexa_transactions
+    username: postgres
+    password: postgres
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQL81Dialect
+  data:
+    rest:
+      detection-strategy: annotated
+  web:
+    resources: static-locations=classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, file:src/main/resources/static/, file:src/main/resources/static/css/
+  mvc:
+    converters:
+      preferred-json-mapper: gson
+  gson:
+    disable-inner-class-serialization: false
+    enable-complex-map-key-serialization: true
+    pretty-printing: true
+
+# Password configurations
+user:
+  default:
+    password:
+      hash:
+        saltLength: 16
+        length: 256
+        algo: PBKDF2WithHmacSHA256
+        iterCount: 1000
+
+# A prefix for generating an account number.
+account:
+  prefix:
+    number: 2354
+
+# Configure the alexa client adapter.
+oauth2:
+  clients:
+    - id: client.alexa.o2.7018cc7b-86ec-47ee-8ae7-eb11511fe555 # The alexa client.
+      secret: eUuvoGnlCViwGzcoGrL428B2V3gyvlg5JLyTz96YhlI=
+      redirect_uris:
+        - https://layla.amazon.com/api/skill/link/MSTO426MI5FM1
+        - https://alexa.amazon.co.jp/api/skill/link/MSTO426MI5FM1
+        - https://pitangui.amazon.com/api/skill/link/MSTO426MI5FM1
+      secretKey: djl5JEImRSlIQE1jUWVUaA== # Randomly generated 128 bit secure random encoded to Base64.
+      secretKeyUse: enc # ONLY "enc" is currently supported
+      secretKeyAlg: aes # ONLY AES is currently supported
+      token:
+        prefix: alexa.linked.user
+        type: Bearer
+
+# The alexa Skill id.
+alexa:
+  defaultLocale: en-US
+  skillId: amzn1.ask.skill.042aea85-90a4-4485-b857-f24e9a4887cf
+  oauthClientId: client.alexa.o2.7018cc7b-86ec-47ee-8ae7-eb11511fe555
+
+fcm:
+  config:
+    path: "static/firebase/firebase.json"
+
+# Actuator props
+management:
+  endpoint:
+    info:
+      enabled: true
+    httptrace:
+      enabled: true
+    loggers:
+      enabled: true
+    web:
+      exposure:
+        include: '*'

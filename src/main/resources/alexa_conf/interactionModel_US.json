@@ -1,0 +1,79 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "diploma work",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "TransactionIntent",
+          "slots": [
+            {
+              "name": "accountType",
+              "type": "accountType"
+            },
+            {
+              "name": "transactionAmount",
+              "type": "AMAZON.NUMBER"
+            },
+            {
+              "name": "recipient",
+              "type": "AMAZON.FirstName"
+            }
+          ],
+          "samples": [
+            "transfer {transactionAmount} to {recipient} using my {accountType}",
+            "transfer {transactionAmount} to my {accountType} from {accountType}",
+            "send {transactionAmount} dollars to {recipient} using my {accountType}"
+          ]
+        },
+        {
+          "name": "AccountBalanceIntent",
+          "slots": [
+            {
+              "name": "accountType",
+              "type": "accountType"
+            }
+          ],
+          "samples": [
+            "my {accountType} balance"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "accountType",
+          "values": [
+            {
+              "name": {
+                "value": "checking account",
+                "synonyms": [
+                  "base account",
+                  "main account"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
