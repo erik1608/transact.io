@@ -92,6 +92,7 @@ management:
       enabled: true
     loggers:
       enabled: true
+  endpoints:
     web:
       exposure:
         include: '*'
