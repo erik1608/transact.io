@@ -96,6 +96,10 @@ public class AccessToken {
 		return initializedToken;
 	}
 
+	public String getData() {
+		return data;
+	}
+
 	public void setToken(String token) {
 		this.initializedToken = token;
 	}

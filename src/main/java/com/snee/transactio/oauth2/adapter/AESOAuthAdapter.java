@@ -100,7 +100,7 @@ public class AESOAuthAdapter extends BaseOAuthAdapter {
 	@Override
 	public User getUser(String accessToken) {
 		AccessToken token = new AccessToken(accessToken, this);
-		JsonObject data = new Gson().fromJson(decryptData(token.getToken(), token.getClient()), JsonObject.class);
+		JsonObject data = new Gson().fromJson(decryptData(token.getData(), token.getClient()), JsonObject.class);
 		if (!data.has(KEY_USERNAME)) {
 			throw new SecurityException("The user is unknown");
 		}

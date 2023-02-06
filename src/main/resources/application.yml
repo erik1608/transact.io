@@ -26,8 +26,6 @@ spring:
   data:
     rest:
       detection-strategy: annotated
-  web:
-    resources: static-locations=classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, file:src/main/resources/static/, file:src/main/resources/static/css/
   mvc:
     converters:
       preferred-json-mapper: gson
