@@ -6,6 +6,7 @@ import com.snee.transactio.model.request.oauth2.TokenRequest;
 import com.snee.transactio.oauth2.OAuth2StdErrorResponse;
 import com.snee.transactio.oauth2.adapter.OAuthAdapter;
 import com.snee.transactio.oauth2.model.AccessToken;
+import com.snee.transactio.oauth2.model.client.RegisteredClient;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -52,7 +53,7 @@ public class OAuth2 {
 	}
 
 	/**
-	 * Returns the
+	 * Returns the adapter for the respective {@link RegisteredClient}.
 	 *
 	 * @param clientCredential The client identifier.
 	 * @return An {@link OAuthAdapter} instance that can handle the requests for client.

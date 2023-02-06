@@ -1,14 +1,7 @@
 package com.snee.transactio.config;
 
-import com.amazon.ask.dispatcher.request.handler.RequestHandler;
 import com.snee.transactio.alexa.AlexaSkillServlet;
-import com.snee.transactio.alexa.handler.AccountBalanceRequestHandler;
-import com.snee.transactio.alexa.handler.AlexaLaunchRequestHandler;
-import com.snee.transactio.alexa.handler.CancelRequestHandler;
-import com.snee.transactio.alexa.handler.HelloRequestHandler;
-import com.snee.transactio.alexa.handler.HelpRequestHandler;
-import com.snee.transactio.alexa.handler.StopRequestHandler;
-import com.snee.transactio.alexa.handler.TransactionRequestHandler;
+import com.snee.transactio.alexa.handler.BaseRequestHandler;
 import com.snee.transactio.component.OAuth2;
 import com.snee.transactio.oauth2.adapter.OAuthAdapter;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.http.HttpServlet;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 public class AlexaServletConfig {
@@ -29,16 +26,26 @@ public class AlexaServletConfig {
 			OAuth2 oAuth2,
 			@Value("${api.prefix}") String apiPrefix) {
 
-		OAuthAdapter adapter = oAuth2.getAdapterWithClientCredentials(alexaConfigs.getOauthClientId());
-		RequestHandler[] handlers = {
-				new StopRequestHandler(adapter, applicationContext),
-				new HelpRequestHandler(adapter, applicationContext),
-				new AlexaLaunchRequestHandler(adapter, applicationContext),
-				new HelloRequestHandler(adapter, applicationContext),
-				new TransactionRequestHandler(adapter, applicationContext),
-				new CancelRequestHandler(adapter, applicationContext),
-				new AccountBalanceRequestHandler(adapter, applicationContext)
-		};
+        // Get the client adapter from the facade and distribute them in the handlers.
+        OAuthAdapter adapter = oAuth2.getAdapterWithClientCredentials(
+                alexaConfigs.getOauthClientId()
+        );
+
+        // Initialize the handlers.
+        List<BaseRequestHandler> handlers = new ArrayList<>();
+        try {
+            for (String handlerName : alexaConfigs.getHandlers()) {
+                Class<?> clazz = Class.forName(handlerName);
+                Constructor<?> ctor = clazz.getConstructor(OAuthAdapter.class, ApplicationContext.class);
+                handlers.add((BaseRequestHandler) ctor.newInstance(adapter, applicationContext));
+            }
+        } catch (ClassNotFoundException |
+                 ClassCastException |
+                 NoSuchMethodException |
+                 InstantiationException |
+                 IllegalAccessException |
+                 InvocationTargetException ignored) {
+        }
 
 		// Construct the servlet registration bean.
 		ServletRegistrationBean<HttpServlet> alexaServletRegistrationBean = new ServletRegistrationBean<>();

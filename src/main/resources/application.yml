@@ -70,6 +70,14 @@ alexa:
   defaultLocale: en-US
   skillId: amzn1.ask.skill.042aea85-90a4-4485-b857-f24e9a4887cf
   oauthClientId: client.alexa.o2.7018cc7b-86ec-47ee-8ae7-eb11511fe555
+  handlers: # The request handlers.
+    - com.snee.transactio.alexa.handler.StopRequestHandler
+    - com.snee.transactio.alexa.handler.HelpRequestHandler
+    - com.snee.transactio.alexa.handler.AlexaLaunchRequestHandler
+    - com.snee.transactio.alexa.handler.HelloRequestHandler
+    - com.snee.transactio.alexa.handler.TransactionRequestHandler
+    - com.snee.transactio.alexa.handler.CancelRequestHandler
+    - com.snee.transactio.alexa.handler.AccountBalanceRequestHandler
 
 fcm:
   config:
