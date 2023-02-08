@@ -1,32 +1,29 @@
 package com.snee.transactio.alexa.handler;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
 import com.amazon.ask.model.Slot;
 import com.amazon.ask.request.Predicates;
-import com.snee.transactio.alexa.constants.SlotName;
 import com.snee.transactio.db.entities.user.User;
 import com.snee.transactio.db.entities.user.UserAccount;
 import com.snee.transactio.oauth2.adapter.OAuthAdapter;
 import org.springframework.context.ApplicationContext;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * The account 3 request handler. <br>
+ * Handles the account balance requests. <br>
  * <p>
  * Intent - <b>AccountBalanceIntent</b> <br>
- * Slot names - [{@link SlotName#ACCOUNT_TYPE}] <br>
+ * Slot names - [{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}] <br>
  * <p>
  * Utterance samples:
  * <ul>
- *  <li>Alexa, ask <b>diploma work</b> for my {@link SlotName#ACCOUNT_TYPE} balance.</li>
+ *  <li>Alexa, ask <b>transact.io</b> for my {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}} balance.</li>
  * </ul>
  * <p>
  * Slot values: <br>
- * {@link SlotName#ACCOUNT_TYPE} - ["checking account"]
+ * {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}} - ["checking account"]
  */
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
 	public AccountBalanceRequestHandler(
@@ -43,6 +40,7 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 
 	@Override
 	public Optional<Response> handle(HandlerInput handlerInput) {
+		super.handle(handlerInput);
 		User user = getUser(handlerInput);
 		if (user == null) {
 			return handlerInput.getResponseBuilder()
@@ -50,12 +48,12 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 					.withLinkAccountCard()
 					.build();
 		}
-		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
-				.append(user.getFirstname()).append(" ").append(user.getLastname());
-		IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
-		Map<String, Slot> slots = intentRequest.getIntent().getSlots();
-		Slot accountTypeSlot = slots.get(SlotName.ACCOUNT_TYPE);
+		Slot accountTypeSlot = slots.get(ACCOUNT_TYPE_SLOT);
 		String accountType = accountTypeSlot.getValue();
+		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+				.append(user.getFirstname())
+				.append(" ")
+				.append(user.getLastname());
 		UserAccount foundAccount = user.getAccountByName(accountType);
 		if (foundAccount == null) {
 			responseSpeechBuilder.append(", the requested ")

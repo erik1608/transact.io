@@ -10,12 +10,26 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+/**
+ * Handles the skill launch request. <br>
+ * <p>
+ * Intent - <b>AccountBalanceIntent</b> <br>
+ * Slot names - N/A <br>
+ * <p>
+ * Utterance samples:
+ * <ul>
+ *  <li>Alexa, open <b>transact.io</b></li>
+ * </ul>
+ * <p>
+ * Slot values: <br>
+ * N/A
+ */
 @Component
 public class AlexaLaunchRequestHandler extends BaseRequestHandler {
-	private static final String LAUNCH_RESPONSE = "Welcome to Transact.IO." +
-			" You can ask for your account balance information," +
-			" or to send money to any configured recipient." +
-			" What action would you like to perform?";
+	private static final String LAUNCH_RESPONSE = "Welcome to " + SKILL_TITLE + "."
+			+ " You can ask for your account balance information,"
+			+ " or to send money to any configured recipient."
+			+ " What action would you like to perform?";
 
 	public AlexaLaunchRequestHandler(
 			OAuthAdapter clientAdapter,

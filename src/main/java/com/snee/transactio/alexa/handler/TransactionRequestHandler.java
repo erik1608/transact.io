@@ -1,11 +1,8 @@
 package com.snee.transactio.alexa.handler;
 
 import com.amazon.ask.dispatcher.request.handler.HandlerInput;
-import com.amazon.ask.model.IntentRequest;
 import com.amazon.ask.model.Response;
-import com.amazon.ask.model.Slot;
 import com.amazon.ask.request.Predicates;
-import com.snee.transactio.alexa.constants.SlotName;
 import com.snee.transactio.db.entities.transaction.Transaction;
 import com.snee.transactio.db.entities.user.Biometrics;
 import com.snee.transactio.db.entities.user.User;
@@ -45,21 +42,17 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 
 	@Override
 	public Optional<Response> handle(HandlerInput handlerInput) {
+		super.handle(handlerInput);
 		User user = getUser(handlerInput);
 		if (user == null) {
 			return handlerInput.getResponseBuilder()
 					.withSpeech("Please link your account with me")
-					.withLinkAccountCard().build();
+					.withLinkAccountCard()
+					.build();
 		}
-		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
-				.append(user.getFirstname())
-				.append(" ")
-				.append(user.getLastname());
-		IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
-		Map<String, Slot> slots = intentRequest.getIntent().getSlots();
-		int transactionAmount = Integer.parseInt(slots.get(SlotName.TRANS_AMOUNT).getValue());
-		String outgoingAccountName = slots.get(SlotName.ACCOUNT_TYPE).getValue();
-		String recipientAlias = slots.get(SlotName.RECIPIENT).getValue();
+		int transactionAmount = Integer.parseInt(slots.get(TRANS_AMOUNT_SLOT).getValue());
+		String outgoingAccountName = slots.get(ACCOUNT_TYPE_SLOT).getValue();
+		String recipientAlias = slots.get(RECIPIENT_SLOT).getValue();
 		if (recipientAlias != null) {
 			UserRelationMapping friendMap = null;
 			List<UserRelationMapping> userRelationMappingList = user.getFriends();
@@ -72,7 +65,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 			if (friendMap == null) {
 				String response = String.format(
 						"The user with alias %s is not associated with you. " +
-						"Make sure that the user you are looking for transaction is in " +
+								"Make sure that the user you are looking for transaction is in " +
 								"your friends list and has pronounceable alias.", recipientAlias
 				);
 				return handlerInput.getResponseBuilder()
@@ -81,6 +74,10 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 						.build();
 			}
 
+			StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+					.append(user.getFirstname())
+					.append(" ")
+					.append(user.getLastname());
 			UserAccount account = user.getAccountByName(outgoingAccountName);
 			if (account == null) {
 				responseSpeechBuilder.append(", the requested ").append(outgoingAccountName).append(" is unknown to your profile.");
@@ -129,7 +126,8 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 					details,
 					biometryEligibleDevice
 			);
-			responseSpeechBuilder.append(", a push notification has been sent to your device, please complete the transaction for the funds to be transferred.");
+			responseSpeechBuilder.append(", a push notification has been sent to your device," +
+					" please complete the transaction for the funds to be transferred.");
 			return handlerInput.getResponseBuilder()
 					.withSpeech(responseSpeechBuilder.toString())
 					.withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
