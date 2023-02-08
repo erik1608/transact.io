@@ -109,13 +109,17 @@ public class UserHandlerService {
         user.setUsername(request.getUserName());
         Example<User> userNameExample = Example.of(user, USERNAME_MATCHER);
         if (mUsersRepo.exists(userNameExample)) {
-            throw new RequestValidationException("User with the username already exists");
+            throw new RequestValidationException(
+                    "User with the username already exists"
+            );
         }
 
         user.setEmail(request.getEmail());
         Example<User> emailExample = Example.of(user, EMAIL_MATCHER);
         if (mUsersRepo.exists(emailExample)) {
-            throw new RequestValidationException("User with the email already exists");
+            throw new RequestValidationException(
+                    "User with the email already exists"
+            );
         }
 
         user.setFirstname(request.getFirstname())
@@ -139,7 +143,9 @@ public class UserHandlerService {
         user.setPassword(userPassword);
         UserDevice deviceExample = new UserDevice();
         deviceExample.setDeviceId(request.getDeviceInfo().getDeviceId());
-        Optional<UserDevice> device = mUserDeviceRepo.findOne(Example.of(deviceExample, DEVICE_MATCHER));
+        Optional<UserDevice> device = mUserDeviceRepo.findOne(
+                Example.of(deviceExample, DEVICE_MATCHER)
+        );
         if (device.isPresent()) {
             // If the device with the ID is already registered get it and add to the user devices.
             user.setUserDeviceList(new ArrayList<>(Collections.singleton(device.get())));
@@ -206,12 +212,20 @@ public class UserHandlerService {
         Example<UserAccount> userAccountExample = Example.of(userAccount, ACCOUNT_NUMBER_MATCHER);
         Optional<UserAccount> optionalUserAccount = mUserAccountsRepo.findOne(userAccountExample);
         //noinspection OptionalGetWithoutIsPresent
-        return optionalUserAccount.map(account -> mUsersRepo.findById(account.getUserId()).get()).orElse(null);
+        return optionalUserAccount.map(
+                        account -> mUsersRepo
+                                .findById(account.getUserId()).get())
+                .orElse(null);
     }
 
-    public UserFriendsResponse sendFriendRequest(Session cUserSession, UserFriendRequest request) {
+    public UserFriendsResponse sendFriendRequest(
+            Session cUserSession,
+            UserFriendRequest request
+    ) {
         if (cUserSession.getSubject().equals(request.getUserName())) {
-            throw new RequestValidationException("You cannot add yourself");
+            throw new RequestValidationException(
+                    "You cannot add yourself"
+            );
         }
 
         User currentUser = getUserInfo(cUserSession.getSubject());
@@ -221,20 +235,30 @@ public class UserHandlerService {
         for (UserRelationMapping mapping : userToRequestFriendsList) {
             User friend = mapping.getFriend();
             if (friend.getUsername().equals(currentUser.getUsername())) {
+                String message = "You are already friends";
                 if (UserFriendRequest.REQUEST_STATUS_PENDING.equals(mapping.getStatus())) {
-                    throw new RequestValidationException("A friend request is already sent to the user");
+                    message = "A friend request is already sent to the user";
                 }
 
-                throw new RequestValidationException("You are already friends");
+                throw new RequestValidationException(message);
             }
         }
 
         UserRelationMapping friendRequest = new UserRelationMapping();
         {
-            mUserFriendsRepo.save(friendRequest.setAlias(currentUser.getFirstname()).setFriend(currentUser).setStatus(UserFriendRequest.REQUEST_STATUS_PENDING));
+            mUserFriendsRepo.save(friendRequest
+                    .setAlias(currentUser.getFirstname())
+                    .setFriend(currentUser)
+                    .setStatus(UserFriendRequest.REQUEST_STATUS_PENDING));
         }
 
-        String detailsText = currentUser.getUsername() + " (" + currentUser.getFirstname() + " " + currentUser.getLastname() + ") " + " has sent you a friend request.";
+        String detailsText = currentUser.getUsername() +
+                " (" +
+                currentUser.getFirstname() +
+                " " +
+                currentUser.getLastname() +
+                ") " +
+                " has sent you a friend request.";
 
         List<UserDevice> requestedUserDevices = userToRequest.getUserDevices();
         HashMap<String, String> details = new HashMap<>();
@@ -287,7 +311,9 @@ public class UserHandlerService {
         String action = request.getAction();
         if ("updateStatus".equals(action)) {
             if (!UserFriendRequest.REQUEST_STATUS_PENDING.equals(foundFriendRequest.getStatus())) {
-                throw new RequestValidationException("The request is already " + foundFriendRequest.getStatus());
+                throw new RequestValidationException(
+                        "The request is already " + foundFriendRequest.getStatus()
+                );
             }
 
             if (UserFriendRequest.REQUEST_STATUS_ACCEPTED.equals(request.getStatus())) {
@@ -340,7 +366,13 @@ public class UserHandlerService {
         try {
             byte[] salt = Base64.getDecoder().decode(options.getSalt());
             SecretKeyFactory skf = SecretKeyFactory.getInstance(options.getAlgorithm());
-            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, options.getIterCount(), Integer.parseInt(mPwdHashConfig.getLength()));
+            PBEKeySpec spec = new PBEKeySpec(
+                    password.toCharArray(),
+                    salt,
+                    options.getIterCount(),
+                    Integer.parseInt(mPwdHashConfig.getLength())
+            );
+
             SecretKey key = skf.generateSecret(spec);
             return Base64.getEncoder().encodeToString(key.getEncoded());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException ignored) {
@@ -362,7 +394,8 @@ public class UserHandlerService {
 
         for (UserDevice savedDevice : userDevices) {
             if (savedDevice.getDeviceId().equals(device.getDeviceId())) {
-                if (!savedDevice.getPushRegistrationId().equals(device.getPush().getRegistrationId())) {
+                String pushRegId = device.getPush().getRegistrationId();
+                if (!savedDevice.getPushRegistrationId().equals(pushRegId)) {
                     savedDevice.setPushRegistrationId(device.getPush().getRegistrationId());
                     mUserDeviceRepo.save(savedDevice);
                 }
@@ -375,7 +408,15 @@ public class UserHandlerService {
         UserDevice newDevice = createUserDevice(device);
         mUserDeviceRepo.save(newDevice);
         for (UserDevice userDevice : userDevices) {
-            mPushService.sendNotification("Account interaction", "New login-in from " + newDevice.getManufacturer() + " " + newDevice.getModel() + " to account " + user.getUsername(), new HashMap<>(), userDevice);
+            String body = "New login-in from " +
+                    newDevice.getManufacturer()
+                    + " "
+                    + newDevice.getModel()
+                    + " to account " + user.getUsername();
+            mPushService.sendNotification("Account interaction",
+                    body,
+                    new HashMap<>(),
+                    userDevice);
         }
         userDevices.add(newDevice);
         mUsersRepo.save(user);
@@ -383,6 +424,12 @@ public class UserHandlerService {
     }
 
     private UserDevice createUserDevice(Device device) {
-        return new UserDevice().setDeviceId(device.getDeviceId()).setModel(device.getModel()).setManufacturer(device.getManufacturer()).setVersion(device.getVersion()).setPlatform(device.getPlatform()).setPushRegistrationId(device.getPush().getRegistrationId());
+        return new UserDevice()
+                .setDeviceId(device.getDeviceId())
+                .setModel(device.getModel())
+                .setManufacturer(device.getManufacturer())
+                .setVersion(device.getVersion())
+                .setPlatform(device.getPlatform())
+                .setPushRegistrationId(device.getPush().getRegistrationId());
     }
 }
