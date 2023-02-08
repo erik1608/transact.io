@@ -77,7 +77,13 @@ public class TransactionRequestHandler extends BaseRequestHandler {
         String outgoingAccountName = slots.get(ACCOUNT_TYPE_SLOT).getValue();
         String friendAlias = slots.get(RECIPIENT_SLOT).getValue();
         if (friendAlias != null) {
-            return processTransaction(handlerInput, user, transactionAmount, outgoingAccountName, friendAlias);
+            return processTransaction(
+                    handlerInput,
+                    user,
+                    transactionAmount,
+                    outgoingAccountName,
+                    friendAlias
+            );
         }
 
         return handlerInput.getResponseBuilder()

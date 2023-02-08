@@ -355,7 +355,10 @@ public class BiometryService {
             return mTransactionId;
         }
 
-        private String getPubKeyPEM(BiometricOperation operation, JsonObject msg) {
+        private String getPubKeyPEM(
+                BiometricOperation operation,
+                JsonObject msg
+        ) {
             final String mPubKeyPEM;
             if (operation == BiometricOperation.FINISH_REG) {
                 if (!msg.has(KEY_SIGNATURE) ||
