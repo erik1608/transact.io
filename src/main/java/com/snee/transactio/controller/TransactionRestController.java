@@ -28,9 +28,11 @@ public class TransactionRestController {
     private final AuthMgmtService mAuthService;
     private final TransactionService mTransactionService;
 
-    public TransactionRestController(UserHandlerService userHandlerService,
-                                     AuthMgmtService authService,
-                                     TransactionService transactionService) {
+    public TransactionRestController(
+            UserHandlerService userHandlerService,
+            AuthMgmtService authService,
+            TransactionService transactionService
+    ) {
         mAuthService = authService;
         mUserHandlerService = userHandlerService;
         mTransactionService = transactionService;
@@ -40,7 +42,9 @@ public class TransactionRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<TransactionResponse> transact(@RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionResponse> transact(
+            @RequestBody TransactionRequest request
+    ) {
         // Validate the incoming request.
         request.validate();
 
@@ -80,10 +84,15 @@ public class TransactionRestController {
                 Integer.parseInt(request.getAmount())
         );
 
+        TransactionResponse.Status status = TransactionResponse.Status.valueOf(
+                responseTransaction.getStatus()
+        );
         TransactionResponse response = new TransactionResponse();
-        if (TransactionResponse.Status.PENDING.equals(TransactionResponse.Status.valueOf(responseTransaction.getStatus()))) {
+        if (TransactionResponse.Status.PENDING.equals(status)) {
             // Since the transaction is done within the application API call, complete it right away.
-            response = mTransactionService.completeTransaction(responseTransaction.getTransactionId());
+            response = mTransactionService.completeTransaction(
+                    responseTransaction.getTransactionId()
+            );
         }
 
         response.setSessionData(session);

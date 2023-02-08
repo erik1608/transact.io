@@ -38,12 +38,16 @@ public class AuthorizationRestController {
     private final static Logger LOG = LogManager.getLogger(AuthorizationRestController.class);
 
     private final static String OAUTH_KEY_GRANT_TYPE = "grant_type";
+
     private final static String OAUTH_KEY_REDIRECT_URI = "redirect_uri";
+
     private final static String OAUTH_KEY_CODE = "code";
 
     private final AuthMgmtService mAuthService;
 
-    public AuthorizationRestController(AuthMgmtService authMgmtService) {
+    public AuthorizationRestController(
+            AuthMgmtService authMgmtService
+    ) {
         mAuthService = authMgmtService;
     }
 
@@ -52,9 +56,13 @@ public class AuthorizationRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public @ResponseBody ResponseEntity<AuthCodeResponse> getAuthToken(@RequestBody AuthCodeRequest request) {
+    public @ResponseBody ResponseEntity<AuthCodeResponse> getAuthToken(
+            @RequestBody AuthCodeRequest request
+    ) {
         request.validate();
-        return ResponseEntity.of(Optional.of(mAuthService.generateOAuthAuthorizeCode(request)));
+        return ResponseEntity.ok(
+                mAuthService.generateOAuthAuthorizeCode(request)
+        );
     }
 
     @CrossOrigin(
@@ -105,8 +113,15 @@ public class AuthorizationRestController {
             if (credential.length < 1) {
                 throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT.getException();
             }
-            String clientCombinedIdSecret = new String(Base64.getDecoder().decode(credential[1]), StandardCharsets.UTF_8);
-            TokenResponse response = mAuthService.generateOAuthAccessToken(request, clientCombinedIdSecret);
+            String clientCombinedIdSecret = new String(
+                    Base64.getDecoder().decode(credential[1]),
+                    StandardCharsets.UTF_8
+            );
+
+            TokenResponse response = mAuthService.generateOAuthAccessToken(
+                    request,
+                    clientCombinedIdSecret
+            );
             return ResponseEntity.ok(response);
         } catch (IOException e) {
             throw new RequestValidationException(e.getMessage(), e);

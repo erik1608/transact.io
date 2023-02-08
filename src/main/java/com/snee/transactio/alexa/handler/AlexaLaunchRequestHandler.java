@@ -25,6 +25,7 @@ import java.util.Optional;
  * N/A
  */
 public class AlexaLaunchRequestHandler extends BaseRequestHandler {
+
     private static final String LAUNCH_RESPONSE = "Welcome to " + SKILL_TITLE + "."
             + " You can ask for your account balance information,"
             + " or to send money to any configured recipient."

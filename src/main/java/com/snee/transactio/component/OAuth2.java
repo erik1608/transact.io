@@ -36,7 +36,9 @@ public class OAuth2 {
      * @return Returns the generated auth_code.
      */
     public String generateAuthCode(AuthCodeRequest request) {
-        OAuthAdapter adapter = getAdapterWithClientCredentials(request.getClientId());
+        OAuthAdapter adapter = getAdapterWithClientCredentials(
+                request.getClientId()
+        );
         return adapter.generateAuthCode(request);
     }
 
@@ -47,9 +49,17 @@ public class OAuth2 {
      * @param clientCredential The client authorization credentials.
      * @return An initialized {@link AccessToken} instance.
      */
-    public AccessToken generateAccessToken(TokenRequest request, String clientCredential) {
-        OAuthAdapter adapter = getAdapterWithClientCredentials(clientCredential);
-        return adapter.generateAccessToken(request, clientCredential);
+    public AccessToken generateAccessToken(
+            TokenRequest request,
+            String clientCredential
+    ) {
+        OAuthAdapter adapter = getAdapterWithClientCredentials(
+                clientCredential
+        );
+        return adapter.generateAccessToken(
+                request,
+                clientCredential
+        );
     }
 
     /**
@@ -58,13 +68,16 @@ public class OAuth2 {
      * @param clientCredential The client identifier.
      * @return An {@link OAuthAdapter} instance that can handle the requests for client.
      */
-    public OAuthAdapter getAdapterWithClientCredentials(String clientCredential) {
+    public OAuthAdapter getAdapterWithClientCredentials(
+            String clientCredential
+    ) {
         for (OAuthAdapter adapter : mAdapters) {
             if (adapter.canHandle(clientCredential)) {
                 return adapter;
             }
         }
 
-        throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT.getException();
+        throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT
+                .getException();
     }
 }

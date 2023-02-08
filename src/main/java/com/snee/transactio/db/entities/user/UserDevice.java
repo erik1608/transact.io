@@ -14,10 +14,15 @@ public class UserDevice {
     private Integer id;
 
     private String deviceId;
+
     private String model;
+
     private String platform;
+
     private String manufacturer;
+
     private String version;
+
     private String pushRegistrationId;
 
     public String getModel() {

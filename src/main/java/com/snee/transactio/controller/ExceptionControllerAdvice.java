@@ -17,18 +17,41 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(RequestValidationException.class)
-    protected ResponseEntity<Object> handleValidationError(RequestValidationException ex, WebRequest request) {
+    protected ResponseEntity<Object> handleValidationError(
+            RequestValidationException ex,
+            WebRequest request
+    ) {
+
         JsonObject response = new JsonObject();
-        response.addProperty("message", ex.getMessage());
-        return handleExceptionInternal(ex, response.toString(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        response.addProperty(
+                "message", ex.getMessage()
+        );
+        return handleExceptionInternal(
+                ex,
+                response.toString(),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST,
+                request
+        );
     }
 
     @ExceptionHandler(OAuth2Exception.class)
     protected ResponseEntity<Object> handleOAuthError(OAuth2Exception ex, WebRequest request) {
         JsonObject response = new JsonObject();
-        response.addProperty("error", ex.getError());
-        response.addProperty("error_description", ex.getErrorDescription());
-        return handleExceptionInternal(ex, response.toString(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        response.addProperty(
+                "error", ex.getError()
+        );
+
+        response.addProperty(
+                "error_description", ex.getErrorDescription()
+        );
+        return handleExceptionInternal(
+                ex,
+                response.toString(),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST,
+                request
+        );
     }
 
     @ExceptionHandler(BadSessionException.class)

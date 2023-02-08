@@ -31,8 +31,11 @@ public class TransactionService {
             .withMatcher("transactionId", ignoreCase());
 
     private final UsersAccountRepo mAccountsRepo;
+
     private final TransactionRepo mTransactionRepo;
+
     private final PushNotificationService mPNS;
+
 
     public TransactionService(Repos repos,
                               PushNotificationService pns) {

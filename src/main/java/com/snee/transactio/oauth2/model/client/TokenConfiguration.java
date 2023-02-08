@@ -2,6 +2,7 @@ package com.snee.transactio.oauth2.model.client;
 
 public class TokenConfiguration {
     private String prefix;
+
     private String type;
 
     public String getPrefix() {

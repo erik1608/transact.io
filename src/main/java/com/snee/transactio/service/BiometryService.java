@@ -39,8 +39,11 @@ import java.util.UUID;
 public class BiometryService {
 
     private final UserHandlerService mUsersService;
+
     private final TransactionService mTransactionService;
+
     private final BiometricsRepo mBiometricsRepo;
+
     private final Map<String, BiometryCache> mRequestCache = new HashMap<>();
 
     public BiometryService(

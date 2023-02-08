@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("${api.prefix}/biometry")
 public class BiometricsRestController {
@@ -29,11 +27,19 @@ public class BiometricsRestController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    public ResponseEntity<BiometryResponse> enrollBiometrics(@RequestBody BiometricRequest biometricRequest) {
+    public ResponseEntity<BiometryResponse> enrollBiometrics(
+            @RequestBody BiometricRequest biometricRequest
+    ) {
         biometricRequest.validate();
-        BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.REG);
-        biometryResponse.setSessionData(mAuthSvc.validateSession(biometricRequest.getSessionData()));
-        return ResponseEntity.of(Optional.of(biometryResponse));
+        BiometryResponse response = mAuthSvc.processBiometryOp(
+                biometricRequest,
+                AuthMgmtService.BiometryOp.REG
+        );
+
+        response.setSessionData(
+                mAuthSvc.validateSession(biometricRequest.getSessionData())
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(
@@ -42,9 +48,15 @@ public class BiometricsRestController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    public ResponseEntity<BiometryResponse> authorizeWithBiometrics(@RequestBody BiometricRequest biometricRequest) {
+    public ResponseEntity<BiometryResponse> authorizeWithBiometrics(
+            @RequestBody BiometricRequest biometricRequest
+    ) {
         biometricRequest.validate();
-        BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.AUTH);
-        return ResponseEntity.of(Optional.of(biometryResponse));
+        BiometryResponse response = mAuthSvc.processBiometryOp(
+                biometricRequest,
+                AuthMgmtService.BiometryOp.AUTH
+        );
+
+        return ResponseEntity.ok(response);
     }
 }

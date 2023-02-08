@@ -31,7 +31,9 @@ public class AuthMgmtService {
     }
 
     private final BiometryService mBiometryService;
+
     private final JWT mJWT;
+
     private final OAuth2 mOAuth2;
 
     public AuthMgmtService(BiometryService biometryService,

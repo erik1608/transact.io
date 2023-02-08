@@ -17,10 +17,13 @@ import java.util.Base64;
 
 public class AesGcmCipher {
     private static final Logger LOG = LogManager.getLogger(AesGcmCipher.class);
+
     private static final SecureRandom secureRandom = new SecureRandom();
 
     private final SecretKey secretKey;
+
     private int block_size = 0;
+
     Cipher cipher = null;
 
     public AesGcmCipher(SecretKey secretKey) {

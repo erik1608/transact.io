@@ -8,11 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public final class Repos {
     private final UsersRepo mUsersRepo;
+
     private final UsersPasswordRepo mUserPwdRepo;
+
     private final UsersAccountRepo mUserAccountsRepo;
+
     private final UsersDeviceRepo mUserDeviceRepo;
+
     private final TransactionRepo mTransactionRepo;
+
     private final BiometricsRepo mBiometricsRepo;
+
     private final UserFriendsRepo mUserFriendsRepo;
 
     public Repos(UsersRepo usersRepo,

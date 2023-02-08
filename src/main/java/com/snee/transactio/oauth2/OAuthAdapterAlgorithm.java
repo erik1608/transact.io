@@ -7,6 +7,7 @@ public enum OAuthAdapterAlgorithm {
     AES_ENC("aes", "enc");
 
     final String name;
+
     final String use;
 
     OAuthAdapterAlgorithm(String name, String use) {

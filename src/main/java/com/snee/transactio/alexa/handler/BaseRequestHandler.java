@@ -21,12 +21,17 @@ import java.util.Optional;
  */
 public abstract class BaseRequestHandler implements RequestHandler {
     protected static final String SKILL_TITLE = "Transact.IO";
+
     protected static final String TRANS_AMOUNT_SLOT = "transactionAmount";
+
     protected static final String RECIPIENT_SLOT = "recipient";
+
     protected static final String ACCOUNT_TYPE_SLOT = "accountType";
 
     protected final Logger LOG = LogManager.getLogger(this.getClass());
+
     protected final OAuthAdapter clientAdapter;
+
     protected final ApplicationContext applicationContext;
 
     protected Map<String, Slot> slots;

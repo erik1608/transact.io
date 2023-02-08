@@ -20,7 +20,9 @@ public class HelpRequestHandler extends BaseRequestHandler {
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(Predicates.intentName("AMAZON.CancelIntent"));
+        return handlerInput.matches(
+                Predicates.intentName("AMAZON.CancelIntent")
+        );
     }
 
     @Override

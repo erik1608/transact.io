@@ -4,11 +4,17 @@ import java.util.List;
 
 public class RegisteredClient {
     private String id;
+
     private String secret;
+
     private String secretKey;
+
     private String secretKeyUse;
+
     private String secretKeyAlg;
+
     private List<String> redirect_uris;
+
     private TokenConfiguration token;
 
     public String getId() {

@@ -7,8 +7,11 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "user.default.password.hash")
 public class PasswordHashConfig {
     private String length;
+
     private String algo;
+
     private String saltLength;
+
     private String iterCount;
 
     public String getLength() {

@@ -33,6 +33,7 @@ public class JWT {
 
     // The token issuer and audience.
     public static final String ISSUER = "https://alexa.pysnippet.org/";
+
     public static final String AUDIENCE = ISSUER;
 
     // Session lifetime in ms.
@@ -45,24 +46,35 @@ public class JWT {
      * @return a signed JWT token.
      * @throws JOSEException When the signing of the token has failed.
      */
-    public String createTokenWithDefaultExpiry(String sub) throws JOSEException {
+    public String createTokenWithDefaultExpiry(
+            String sub
+    ) throws JOSEException {
         Date iat = new Date();
         Date exp = new Date(iat.getTime() + TOKEN_LIFETIME);
         return createToken(sub, iat, exp);
     }
 
-    public String createTokenWithNoExpiry(String sub) throws JOSEException {
+    public String createTokenWithNoExpiry(
+            String sub
+    ) throws JOSEException {
         Date iat = new Date();
         return createToken(sub, iat, null);
     }
 
-    public String createTokenWithExpiry(String sub, Long lifetime) throws JOSEException {
+    public String createTokenWithExpiry(
+            String sub,
+            Long lifetime
+    ) throws JOSEException {
         Date iat = new Date();
         Date exp = new Date(iat.getTime() + lifetime);
         return createToken(sub, iat, exp);
     }
 
-    private String createToken(String sub, Date iat, Date exp) throws JOSEException {
+    private String createToken(
+            String sub,
+            Date iat,
+            Date exp
+    ) throws JOSEException {
         JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
         claimsBuilder.audience(AUDIENCE);
         claimsBuilder.issuer(ISSUER);
@@ -93,7 +105,9 @@ public class JWT {
      * @param jwtToken The token to be validated.
      * @return The {@link JWTClaimsSet} obtained from the token.
      */
-    public JWTClaimsSet validate(String jwtToken) throws BadJOSEException, ParseException, JOSEException {
+    public JWTClaimsSet validate(
+            String jwtToken
+    ) throws BadJOSEException, ParseException, JOSEException {
         OctetSequenceKey jwk = new OctetSequenceKey
                 .Builder(new Base64URL(DEFAULT_ENC_KEY))
                 .keyUse(KeyUse.SIGNATURE)
@@ -101,10 +115,15 @@ public class JWT {
                 .algorithm(Algorithm.parse(DEFAULT_JWS_ALGO.getName()))
                 .build();
 
-        ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-        jwtProcessor.setJWSKeySelector(new JWSVerificationKeySelector<>(
-                DEFAULT_JWS_ALGO, new ImmutableJWKSet<>(new JWKSet(jwk))
+        ConfigurableJWTProcessor<SecurityContext> processor =
+                new DefaultJWTProcessor<>();
+
+        processor.setJWSKeySelector(new JWSVerificationKeySelector<>(
+                DEFAULT_JWS_ALGO,
+                new ImmutableJWKSet<>(
+                        new JWKSet(jwk)
+                )
         ));
-        return jwtProcessor.process(jwtToken, null);
+        return processor.process(jwtToken, null);
     }
 }

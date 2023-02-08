@@ -11,16 +11,16 @@ and the registered biometric credential used to validate the account owner.
 
 ## <p style="text-align: center;" >Use scenario</p>
 
-* The user creates an account using the **Transact.IO** client on their Android (Currently only platform supported)
+*   The user creates an account using the **Transact.IO** client on their Android (Currently only platform supported)
   device.
-* The user navigates to "**Settings**" and creates a Biometric credential.
-* The user opens Alexa application and navigates to the "**Skill & Games**" view.
-* Searches for the **Transact.IO** skill and enables it.
-* Above step will opt the user to **Transact.IO** application and will require a consent of account information use.
-* Once accepted the user will automatically be navigated back to the Amazon Alexa app
-* The linkage will be completed successfully if the user accepts the consent of account information use.
-* Send a friend request to another user, for the ability to send them credits.
-* If the friend request has been approved ask Alexa to send money to the new friend.
+*   The user navigates to "**Settings**" and creates a Biometric credential.
+*   The user opens Alexa application and navigates to the "**Skill & Games**" view.
+*   Searches for the **Transact.IO** skill and enables it.
+*   Above step will opt the user to **Transact.IO** application and will require a consent of account information use.
+*   Once accepted the user will automatically be navigated back to the Amazon Alexa app
+*   The linkage will be completed successfully if the user accepts the consent of account information use.
+*   Send a friend request to another user, for the ability to send them credits.
+*   If the friend request has been approved ask Alexa to send money to the new friend.
 
 That is it!
 
@@ -28,10 +28,10 @@ That is it!
 
 ### Prerequisites
 
-* JDK (Version: 11.0.3 or higher)
-* Maven (Version: 3.8.1)
-* Tomcat (Version: 10.0.27 or higher) - Optional
-* PostgreSQL (Version: 14 or higher)
+*   JDK (Version: 11.0.3 or higher)
+*   Maven (Version: 3.8.1)
+*   Tomcat (Version: 10.0.27 or higher) - Optional
+*   PostgreSQL (Version: 14 or higher)
 
 ### Process
 
@@ -45,7 +45,8 @@ mvn spring-boot:run
 ```
 
 The server will start up at default ``:8080`` port.
-To modify the server port, edit the <a href="src/main/resources/application.yml#L5">application.yml</a> and the port in the
+To modify the server port, edit the <a href="src/main/resources/application.yml#L5">application.yml</a> and the port in
+the
 following property. E.g.:
 
 ```yaml

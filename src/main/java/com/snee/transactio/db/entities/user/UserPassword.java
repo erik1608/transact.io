@@ -14,8 +14,11 @@ public class UserPassword {
     private Integer id;
 
     private String algorithm;
+
     private int iter_count;
+
     private String salt;
+
     private String hash;
 
     public String getAlgorithm() {

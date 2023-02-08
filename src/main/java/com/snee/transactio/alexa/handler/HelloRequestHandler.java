@@ -26,7 +26,8 @@ public class HelloRequestHandler extends BaseRequestHandler {
     public Optional<Response> handle(HandlerInput handlerInput) {
         User user = getUser(handlerInput);
         if (user == null) {
-            return handlerInput.getResponseBuilder().withSpeech("Please link your account with me")
+            return handlerInput.getResponseBuilder()
+                    .withSpeech("Please link your account with me")
                     .withLinkAccountCard()
                     .build();
         }

@@ -9,12 +9,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class AccessToken {
+
     private String tokenContentDelim = ":";
 
     private String tokenType;
+
     private String initializedToken;
 
     private RegisteredClient client;
+
     private String data;
 
     private OAuthAdapter adapter;

@@ -20,7 +20,10 @@ public class UserInfoRestController {
     private final UserHandlerService mUserHandlerService;
     private final AuthMgmtService mAuthService;
 
-    public UserInfoRestController(UserHandlerService userHandlerService, AuthMgmtService authService) {
+    public UserInfoRestController(
+            UserHandlerService userHandlerService,
+            AuthMgmtService authService
+    ) {
         mAuthService = authService;
         mUserHandlerService = userHandlerService;
     }
@@ -30,13 +33,19 @@ public class UserInfoRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<UserInfoResponse> getUserInfo(@RequestBody UserInfoRequest request) {
+    public ResponseEntity<UserInfoResponse> getUserInfo(
+            @RequestBody UserInfoRequest request
+    ) {
         request.validate();
         UserInfoResponse response = new UserInfoResponse();
         {
-            Session session = mAuthService.validateSession(request.getSessionData());
+            Session session = mAuthService.validateSession(
+                    request.getSessionData()
+            );
             User userInfoResponse = new User();
-            User userInfo = mUserHandlerService.getUser(session.getSubject());
+            User userInfo = mUserHandlerService.getUser(
+                    session.getSubject()
+            );
             userInfoResponse.copyFrom(userInfo);
             response.setUserInfo(userInfoResponse);
             response.setSessionData(session);

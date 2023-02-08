@@ -28,7 +28,10 @@ public class JWTWebSecurity {
                 .csrf().disable()
                 .cors().disable()
                 .antMatcher("/**")
-                .addFilterBefore(new JWTPreAuthenticationFilter(mAuthService), AbstractPreAuthenticatedProcessingFilter.class)
+                .addFilterBefore(
+                        new JWTPreAuthenticationFilter(mAuthService),
+                        AbstractPreAuthenticatedProcessingFilter.class
+                )
                 .build();
     }
 }

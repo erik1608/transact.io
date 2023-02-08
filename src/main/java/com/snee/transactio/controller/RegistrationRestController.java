@@ -15,18 +15,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("${api.prefix}/reg")
 public class RegistrationRestController {
-    private static final Logger LOG = LogManager.getLogger(RegistrationRestController.class);
+    private static final Logger LOG = LogManager.getLogger(
+            RegistrationRestController.class
+    );
 
     private final UserHandlerService mUserHandlerService;
     private final AuthMgmtService mAuthMgmtService;
 
 
-    public RegistrationRestController(UserHandlerService userHandlerService, AuthMgmtService authMgmtService) {
+    public RegistrationRestController(
+            UserHandlerService userHandlerService,
+            AuthMgmtService authMgmtService
+    ) {
         mUserHandlerService = userHandlerService;
         mAuthMgmtService = authMgmtService;
     }
@@ -36,12 +39,20 @@ public class RegistrationRestController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseBody
-    public ResponseEntity<RegistrationResponse> registerUser(@RequestBody RegistrationRequest regRequest) {
+    public ResponseEntity<RegistrationResponse> registerUser(
+            @RequestBody RegistrationRequest regRequest
+    ) {
         LOG.info(regRequest);
         regRequest.validate();
         RegistrationResponse regResponse = new RegistrationResponse();
-        User createdUser = mUserHandlerService.registerUser(regRequest, regResponse);
-        regResponse.setSessionData(mAuthMgmtService.createSession(createdUser.getUsername()));
-        return ResponseEntity.of(Optional.of(regResponse));
+        User createdUser = mUserHandlerService.registerUser(
+                regRequest,
+                regResponse
+        );
+
+        regResponse.setSessionData(
+                mAuthMgmtService.createSession(createdUser.getUsername())
+        );
+        return ResponseEntity.ok(regResponse);
     }
 }

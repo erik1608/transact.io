@@ -21,8 +21,11 @@ import java.util.List;
 @ConfigurationProperties(prefix = "alexa")
 public class AlexaConfigs {
     private String defaultLocale;
+
     private String skillId;
+
     private String oauthClientId;
+
     private List<String> handlers;
 
     /**

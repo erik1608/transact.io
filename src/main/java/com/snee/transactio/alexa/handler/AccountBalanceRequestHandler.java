@@ -26,6 +26,7 @@ import java.util.Optional;
  * {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}} - ["checking account"]
  */
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
+
     public AccountBalanceRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext

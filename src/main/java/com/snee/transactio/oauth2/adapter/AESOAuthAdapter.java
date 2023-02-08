@@ -28,8 +28,11 @@ public class AESOAuthAdapter extends BaseOAuthAdapter {
     private static final OAuthAdapterAlgorithm ALG = OAuthAdapterAlgorithm.AES_ENC;
 
     private static final String KEY_USERNAME = "username";
+
     private static final String KEY_AUTH_CODE_ID = "id";
+
     private static final String KEY_CLIENT_ID = "client_id";
+
     private static final String OAUTH2_SCOPE = "oauth2";
 
     // Maps the authorization code id  with granted authorization code

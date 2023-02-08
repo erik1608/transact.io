@@ -67,9 +67,13 @@ public class UserHandlerService {
             .withMatcher("deviceId", ignoreCase());
 
     private final UsersRepo mUsersRepo;
+
     private final UsersPasswordRepo mUserPwdRepo;
+
     private final UsersDeviceRepo mUserDeviceRepo;
+
     private final UsersAccountRepo mUserAccountsRepo;
+
     private final UserFriendsRepo mUserFriendsRepo;
 
     private final PushNotificationService mPushService;
