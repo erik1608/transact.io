@@ -11,7 +11,6 @@ import java.util.Optional;
 
 // TODO: 2/8/2023 Implement.
 public class StopRequestHandler extends BaseRequestHandler {
-    private static Logger LOG = LogManager.getLogger(StopRequestHandler.class);
 
     public StopRequestHandler(
             OAuthAdapter clientAdapter,
