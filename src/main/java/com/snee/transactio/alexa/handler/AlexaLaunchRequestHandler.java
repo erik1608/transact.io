@@ -6,7 +6,6 @@ import com.amazon.ask.model.Response;
 import com.amazon.ask.request.Predicates;
 import com.snee.transactio.oauth2.adapter.OAuthAdapter;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
@@ -26,10 +25,11 @@ import java.util.Optional;
  */
 public class AlexaLaunchRequestHandler extends BaseRequestHandler {
 
-    private static final String LAUNCH_RESPONSE = "Welcome to " + SKILL_TITLE + "."
-            + " You can ask for your account balance information,"
-            + " or to send money to any configured recipient."
-            + " What action would you like to perform?";
+    private static final String LAUNCH_RESPONSE =
+            "Welcome to " + SKILL_TITLE + "." +
+            " You can ask for your account balance information," +
+            " or to send money to any configured recipient." +
+            " What action would you like to perform?";
 
     public AlexaLaunchRequestHandler(
             OAuthAdapter clientAdapter,
@@ -40,7 +40,9 @@ public class AlexaLaunchRequestHandler extends BaseRequestHandler {
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(Predicates.requestType(LaunchRequest.class));
+        return handlerInput.matches(
+                Predicates.requestType(LaunchRequest.class)
+        );
     }
 
     @Override

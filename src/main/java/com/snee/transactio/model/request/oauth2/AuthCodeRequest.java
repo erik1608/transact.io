@@ -44,24 +44,34 @@ public class AuthCodeRequest implements RequestModel {
 	@Override
 	public void validate() {
 		if (client_id == null || client_id.isEmpty()) {
-			throw new RequestValidationException("client_id is required");
+			throw new RequestValidationException(
+					"client_id is required"
+			);
 		}
 
 		if (redirect_uri == null || redirect_uri.isEmpty()) {
-			throw new RequestValidationException("redirect_uri is required");
+			throw new RequestValidationException(
+					"redirect_uri is required"
+			);
 		}
 
 		if (scope == null || scope.isEmpty()) {
-			throw new RequestValidationException("scope is required");
+			throw new RequestValidationException(
+					"scope is required"
+			);
 		}
 
 		if (state == null || state.isEmpty()) {
-			throw new RequestValidationException("state is required");
+			throw new RequestValidationException(
+					"state is required"
+			);
 		}
 
 
 		if (sessionData == null) {
-			throw new RequestValidationException("sessionData is required");
+			throw new RequestValidationException(
+					"sessionData is required"
+			);
 		}
 	}
 }

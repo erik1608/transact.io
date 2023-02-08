@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 
 public class JWTPreAuthenticationFilter extends OncePerRequestFilter {
     private static final String SESSION_DATA_KEY = "sessionData";
+
     private static final String REQ_ATTR_JWT_SUB = "com.etd.transactio.filter.subject";
 
     private static final String USER_INFO_PATH =
@@ -35,19 +36,29 @@ public class JWTPreAuthenticationFilter extends OncePerRequestFilter {
             "/api/*/user/association**";
 
     private static final RequestMatcher USER_INFO_AUTHORIZED_REQUEST_GET_MATCHER =
-            new AntPathRequestMatcher(USER_INFO_PATH, HttpMethod.GET.name());
+            new AntPathRequestMatcher(
+                    USER_INFO_PATH, HttpMethod.GET.name()
+            );
 
     private static final RequestMatcher USER_INFO_AUTHORIZED_REQUEST_POST_MATCHER =
-            new AntPathRequestMatcher(USER_INFO_PATH, HttpMethod.POST.name());
+            new AntPathRequestMatcher(
+                    USER_INFO_PATH, HttpMethod.POST.name()
+            );
 
     private static final RequestMatcher BIOMETRY_AUTHORIZED_REQUEST_POST_MATCHER =
-            new AntPathRequestMatcher(BIOMETRY_REG_PATH, HttpMethod.POST.name());
+            new AntPathRequestMatcher(
+                    BIOMETRY_REG_PATH, HttpMethod.POST.name()
+            );
 
     private static final RequestMatcher USER_ASSOCIATION_REQUEST_POST_MATCHER =
-            new AntPathRequestMatcher(USER_ASSOCIATION_PATH, HttpMethod.POST.name());
+            new AntPathRequestMatcher(
+                    USER_ASSOCIATION_PATH, HttpMethod.POST.name()
+            );
 
     private static final RequestMatcher USER_ASSOCIATION_REQUEST_GET_MATCHER =
-            new AntPathRequestMatcher(USER_ASSOCIATION_PATH, HttpMethod.GET.name());
+            new AntPathRequestMatcher(
+                    USER_ASSOCIATION_PATH, HttpMethod.GET.name()
+            );
 
     private static final RequestMatcher AUTH_REQUEST_MATCHER = new OrRequestMatcher(
             USER_INFO_AUTHORIZED_REQUEST_GET_MATCHER,
@@ -64,9 +75,11 @@ public class JWTPreAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
 
         CachedRequest requestWrapper = new CachedRequest(request);
         if (!AUTH_REQUEST_MATCHER.matches(request)) {
@@ -74,14 +87,22 @@ public class JWTPreAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        JsonObject requestJson = new Gson().fromJson(new InputStreamReader(requestWrapper.getInputStream()), JsonObject.class);
+        JsonObject requestJson = new Gson().fromJson(
+                new InputStreamReader(requestWrapper.getInputStream()),
+                JsonObject.class
+        );
+
         if (requestJson == null || !requestJson.has(SESSION_DATA_KEY)) {
             unauthorized(response);
             return;
         }
 
         try {
-            Session sessionData = new Gson().fromJson(requestJson.get(SESSION_DATA_KEY), Session.class);
+            Session sessionData = new Gson().fromJson(
+                    requestJson.get(SESSION_DATA_KEY),
+                    Session.class
+            );
+
             sessionData.validate();
             Session newSession = mAuthMgmtService.validateSession(sessionData);
             requestWrapper.setAttribute(REQ_ATTR_JWT_SUB, newSession.getSubject());
@@ -94,12 +115,20 @@ public class JWTPreAuthenticationFilter extends OncePerRequestFilter {
     private void unauthorized(HttpServletResponse response) throws IOException {
         JsonObject responseJson = new JsonObject();
         int status = HttpServletResponse.SC_UNAUTHORIZED;
-        responseJson.addProperty("message", "A session is required for this endpoint");
-        responseJson.addProperty("status", status);
+        responseJson.addProperty(
+                "message", "A session is required for this endpoint"
+        );
+        responseJson.addProperty(
+                "status", status
+        );
         writeResponse(response, status, responseJson.toString());
     }
 
-    private void writeResponse(HttpServletResponse response, int status, String json) throws IOException {
+    private void writeResponse(
+            HttpServletResponse response,
+            int status,
+            String json
+    ) throws IOException {
         response.setContentType(ContentType.APPLICATION_JSON.getMimeType());
         response.setStatus(status);
         response.setContentLength(json.length());

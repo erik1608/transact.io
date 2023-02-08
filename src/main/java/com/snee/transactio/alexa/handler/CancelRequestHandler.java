@@ -19,11 +19,15 @@ public class CancelRequestHandler extends BaseRequestHandler {
 
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(Predicates.intentName("AMAZON.CancelIntent"));
+        return handlerInput.matches(
+                Predicates.intentName("AMAZON.CancelIntent")
+        );
     }
 
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        return handlerInput.getResponseBuilder().withSpeech("Good bye!").build();
+        return handlerInput.getResponseBuilder()
+                .withSpeech("Good bye!")
+                .build();
     }
 }

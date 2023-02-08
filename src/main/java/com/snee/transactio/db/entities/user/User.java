@@ -1,6 +1,5 @@
 package com.snee.transactio.db.entities.user;
 
-import org.apache.log4j.Logger;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 

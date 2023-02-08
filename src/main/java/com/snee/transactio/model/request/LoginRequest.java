@@ -24,23 +24,38 @@ public class LoginRequest implements RequestModel {
 
     public void validate() {
         if ("create".equals(mode)) {
-            if (usernameOrEmail == null || usernameOrEmail.isEmpty()) {
-                throw new RequestValidationException("Username or email is required");
-            }
-
-            if (password == null || password.isEmpty()) {
-                throw new RequestValidationException("Password is required");
-            }
-
+            validateUsernameOrEmail();
+            validatePassword();
             if (deviceInfo != null) {
                 deviceInfo.validate();
             }
         } else if ("renew".equals(mode)) {
-            if (sessionData == null) {
-                throw new RequestValidationException("Session data is required");
-            }
+            validateSessionData();
+        }
+    }
 
-            sessionData.validate();
+    private void validateSessionData() {
+        if (sessionData == null) {
+            throw new RequestValidationException(
+                    "Session data is required"
+            );
+        }
+        sessionData.validate();
+    }
+
+    private void validatePassword() {
+        if (password == null || password.isEmpty()) {
+            throw new RequestValidationException(
+                    "Password is required"
+            );
+        }
+    }
+
+    private void validateUsernameOrEmail() {
+        if (usernameOrEmail == null || usernameOrEmail.isEmpty()) {
+            throw new RequestValidationException(
+                    "Username or email is required"
+            );
         }
     }
 

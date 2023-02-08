@@ -59,57 +59,84 @@ public class AuthMgmtService {
 
     public Session validateSession(Session session) {
         try {
-            return createSession(mJWT.validate(session.getKey()).getSubject());
-        } catch (ParseException | BadJOSEException | JOSEException e) {
-            throw new BadSessionException("Failed to validate the session", e);
+            return createSession(
+                    mJWT.validate(session.getKey()).getSubject()
+            );
+        } catch (ParseException |
+                 BadJOSEException |
+                 JOSEException e) {
+            throw new BadSessionException(
+                    "Failed to validate the session", e
+            );
         }
     }
 
-    public BiometryResponse processBiometryOp(@NonNull BiometricRequest request, @NonNull BiometryOp op) {
+    public BiometryResponse processBiometryOp(
+            @NonNull BiometricRequest request,
+            @NonNull BiometryOp op
+    ) {
         BiometryResponse response;
         switch (op) {
             case REG:
-                // Validate the user session. For the registration request.
-                Session session = validateSession(request.getSessionData());
-                request.setSubject(session.getSubject());
-                switch (request.getOperation()) {
-                    case INIT_REG:
-                        response = mBiometryService.initRegistration(request);
-                        break;
-                    case FINISH_REG:
-                        response = mBiometryService.register(request);
-                        break;
-                    case DELETE_REG:
-                        response = mBiometryService.deleteReg(request);
-                        break;
-                    default:
-                        throw new RequestValidationException("Unknown operation provided");
-                }
-
-                // Set the sessionData to the response.
-                response.setSessionData(session);
-                return response;
+                return getRegResponse(request);
             case AUTH:
-                switch (request.getOperation()) {
-                    case INIT_AUTH:
-                        response = mBiometryService.initAuth(request);
-                        break;
-                    case FINISH_AUTH:
-                        response = mBiometryService.auth(request);
-                        response.setSessionData(createSession(request.getSubject()));
-                        break;
-                    default:
-                        throw new RequestValidationException("Unknown operation provided");
-                }
-                return response;
+                return getAuthResponse(request);
             default:
-                throw new RequestValidationException("Unknown operation!");
+                throw new RequestValidationException(
+                        "Unknown operation!"
+                );
         }
 
     }
 
+    private BiometryResponse getRegResponse(BiometricRequest request) {
+        BiometryResponse response;
+        // Validate the user session. For the registration request.
+        Session session = validateSession(request.getSessionData());
+        request.setSubject(session.getSubject());
+        switch (request.getOperation()) {
+            case INIT_REG:
+                response = mBiometryService.initReg(request);
+                break;
+            case FINISH_REG:
+                response = mBiometryService.reg(request);
+                break;
+            case DELETE_REG:
+                response = mBiometryService.deleteReg(request);
+                break;
+            default:
+                throw new RequestValidationException(
+                        "Unknown operation provided"
+                );
+        }
+
+        // Set the sessionData to the response.
+        response.setSessionData(session);
+        return response;
+    }
+
+    private BiometryResponse getAuthResponse(BiometricRequest request) {
+        BiometryResponse response;
+        switch (request.getOperation()) {
+            case INIT_AUTH:
+                response = mBiometryService.initAuth(request);
+                break;
+            case FINISH_AUTH:
+                response = mBiometryService.auth(request);
+                response.setSessionData(createSession(request.getSubject()));
+                break;
+            default:
+                throw new RequestValidationException(
+                        "Unknown operation provided"
+                );
+        }
+        return response;
+    }
+
     @Transactional
-    public synchronized AuthCodeResponse generateOAuthAuthorizeCode(AuthCodeRequest request) {
+    public synchronized AuthCodeResponse generateOAuthAuthCode(
+            AuthCodeRequest request
+    ) {
         AuthCodeResponse response = new AuthCodeResponse();
         response.setCode(mOAuth2.generateAuthCode(request));
         response.setState(request.getState());
@@ -117,7 +144,10 @@ public class AuthMgmtService {
     }
 
     @Transactional
-    public synchronized TokenResponse generateOAuthAccessToken(TokenRequest request, String clientAuthorization) {
+    public synchronized TokenResponse generateOAuthAccessToken(
+            TokenRequest request,
+            String clientAuthorization
+    ) {
         AccessToken accessToken = mOAuth2.generateAccessToken(request, clientAuthorization);
         TokenResponse response = new TokenResponse();
         response.setAccessToken(accessToken.getToken());

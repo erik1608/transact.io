@@ -174,7 +174,8 @@ public class UserHandlerService {
         userAccount.setUserId(user.getId());
         mUserAccountsRepo.save(userAccount);
 
-        response.setStatus(HttpStatus.CREATED).setMessage("User registered successfully");
+        response.setStatus(HttpStatus.CREATED)
+                .setMessage("User registered successfully");
         return user;
     }
 
@@ -187,7 +188,9 @@ public class UserHandlerService {
      */
     public boolean isPasswordCorrect(User user, String password) {
         //noinspection EqualsBetweenInconvertibleTypes
-        return user.getPassword().equals(hashPassword(user.getPassword(), password));
+        return user.getPassword().equals(
+                hashPassword(user.getPassword(), password)
+        );
     }
 
 
@@ -213,8 +216,13 @@ public class UserHandlerService {
      * @return {@link User} the object of the user information.
      */
     public User getUserByAccount(UserAccount userAccount) {
-        Example<UserAccount> userAccountExample = Example.of(userAccount, ACCOUNT_NUMBER_MATCHER);
-        Optional<UserAccount> optionalUserAccount = mUserAccountsRepo.findOne(userAccountExample);
+        Example<UserAccount> userAccountExample = Example.of(
+                userAccount, ACCOUNT_NUMBER_MATCHER
+        );
+
+        Optional<UserAccount> optionalUserAccount = mUserAccountsRepo.findOne(
+                userAccountExample
+        );
         //noinspection OptionalGetWithoutIsPresent
         return optionalUserAccount.map(
                         account -> mUsersRepo
@@ -279,7 +287,10 @@ public class UserHandlerService {
         return response;
     }
 
-    public UserFriendsResponse getFriendsList(Session cUserSession, UserFriendRequest request) {
+    public UserFriendsResponse getFriendsList(
+            Session cUserSession,
+            UserFriendRequest request
+    ) {
         UserFriendsResponse response = new UserFriendsResponse();
         User currentUser = getUserInfo(cUserSession.getSubject());
         List<UserFriendsResponse.Friend> friends = new ArrayList<>();
@@ -297,7 +308,10 @@ public class UserHandlerService {
         return response;
     }
 
-    public UserFriendsResponse updateUsersFriend(Session cUserSession, UserFriendRequest request) {
+    public UserFriendsResponse updateUsersFriend(
+            Session cUserSession,
+            UserFriendRequest request
+    ) {
         UserFriendsResponse response = new UserFriendsResponse();
         User currentUser = getUserInfo(cUserSession.getSubject());
         List<UserRelationMapping> friends = currentUser.getFriends();
@@ -343,7 +357,10 @@ public class UserHandlerService {
         return response;
     }
 
-    public UserFriendsResponse deleteUsersFriend(Session cUserSession, UserFriendRequest request) {
+    public UserFriendsResponse deleteUsersFriend(
+            Session cUserSession,
+            UserFriendRequest request
+    ) {
         Assert.notNull(cUserSession, "The session cannot be null.");
         Assert.notNull(request, "The request cannot be null.");
 
@@ -354,13 +371,16 @@ public class UserHandlerService {
     private User getUserInfo(String username) {
         User userInfo = getUser(username);
         if (userInfo == null) {
-            throw new RequestValidationException("Requested user does not exist");
+            throw new RequestValidationException(
+                    "Requested user does not exist"
+            );
         }
         return userInfo;
     }
 
     /**
-     * Hashes the provided password using the options described in the {@link UserPassword}.
+     * Hashes the provided password using
+     * the options described in the {@link UserPassword}.
      *
      * @param options  the hash options.
      * @param password the password to hash.
@@ -379,7 +399,8 @@ public class UserHandlerService {
 
             SecretKey key = skf.generateSecret(spec);
             return Base64.getEncoder().encodeToString(key.getEncoded());
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException ignored) {
+        } catch (NoSuchAlgorithmException |
+                 InvalidKeySpecException ignored) {
             return null;
         }
     }
@@ -400,7 +421,9 @@ public class UserHandlerService {
             if (savedDevice.getDeviceId().equals(device.getDeviceId())) {
                 String pushRegId = device.getPush().getRegistrationId();
                 if (!savedDevice.getPushRegistrationId().equals(pushRegId)) {
-                    savedDevice.setPushRegistrationId(device.getPush().getRegistrationId());
+                    savedDevice.setPushRegistrationId(
+                            device.getPush().getRegistrationId()
+                    );
                     mUserDeviceRepo.save(savedDevice);
                 }
 

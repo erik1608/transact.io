@@ -26,9 +26,11 @@ public class AccessToken {
      * Initialize an instance with an already generated token. <br>
      * This ctor will deserialize the token into the 3 parts.
      * <ul>
-     *     <li>tokenPrefix - set by the {@link RegisteredClient} configuration (optional).</li>
+     *     <li>tokenPrefix - set by the {@link RegisteredClient}
+     *                       configuration (optional).</li>
      *     <li>clientId - the {@link RegisteredClient} identifier.</li>
-     *     <li>data - an encrypted data used to very the {@link RegisteredClient} using its server secret.</li>
+     *     <li>data - an encrypted data used to verify
+     *                the {@link RegisteredClient} using its server secret.</li>
      * </ul>
      *
      * @param initializedToken a String representation of the access token.
@@ -42,10 +44,12 @@ public class AccessToken {
 
     /**
      * Initialize an instance with required properties to generated token.
-     * The {@link #getToken()} will be initialized and can be used once the instance is created.
+     * The {@link #getToken()} will be initialized and
+     * can be used once the instance is created.
      *
      * @param client        The {@link RegisteredClient} instance.
-     * @param encryptedData The data that has been encrypted with the client's server key.
+     * @param encryptedData The data that has been encrypted with the client's
+     *                      server key.
      * @throws OAuth2Exception in case the token cannot be deserialized.
      */
     public AccessToken(RegisteredClient client, String encryptedData) {

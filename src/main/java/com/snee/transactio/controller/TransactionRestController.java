@@ -25,7 +25,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TransactionRestController {
 
     private final UserHandlerService mUserHandlerService;
+
     private final AuthMgmtService mAuthService;
+
     private final TransactionService mTransactionService;
 
     public TransactionRestController(

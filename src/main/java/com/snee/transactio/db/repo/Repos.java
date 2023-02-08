@@ -55,7 +55,9 @@ public final class Repos {
         } else if (UserFriendsRepo.class.equals(cls)) {
             return (T) mUserFriendsRepo;
         } else {
-            throw new IllegalArgumentException("The provided entity does not have a mapped repository.");
+            throw new IllegalArgumentException(
+                    "The provided entity does not have a mapped repository."
+            );
         }
     }
 }

@@ -137,7 +137,7 @@ public class BiometryService {
     }
 
     @Transactional
-    public InitRegistrationResponse initRegistration(BiometricRequest request) {
+    public InitRegistrationResponse initReg(BiometricRequest request) {
         InitRegistrationResponse initReg = new InitRegistrationResponse();
         String correlationId = UUID.randomUUID().toString();
         initReg.setChallenge(CryptoUtils.generateChallenge());
@@ -152,7 +152,7 @@ public class BiometryService {
     }
 
     @Transactional
-    public FinishRegistrationResponse register(BiometricRequest request) {
+    public FinishRegistrationResponse reg(BiometricRequest request) {
         User userInfo = mUsersService.getUser(request.getSubject());
 
         FinishRegistrationResponse finishReg = new FinishRegistrationResponse();

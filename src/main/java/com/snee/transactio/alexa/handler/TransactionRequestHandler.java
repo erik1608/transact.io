@@ -145,7 +145,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
         if (device == null) {
             String message = "You don't have a device," +
                     " that is eligible for transaction confirmation" +
-                    ", please register a biometric credential" +
+                    ", please reg a biometric credential" +
                     " and try again.";
 
             return handlerInput.getResponseBuilder()

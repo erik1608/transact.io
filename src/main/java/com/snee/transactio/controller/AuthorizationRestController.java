@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("${api.prefix}/o2/auth")
@@ -61,7 +60,7 @@ public class AuthorizationRestController {
     ) {
         request.validate();
         return ResponseEntity.ok(
-                mAuthService.generateOAuthAuthorizeCode(request)
+                mAuthService.generateOAuthAuthCode(request)
         );
     }
 

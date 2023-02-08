@@ -19,60 +19,61 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("${api.prefix}/login")
 public class LoginRestController {
 
-	private final AuthMgmtService mAuthService;
-	private final UserHandlerService mUsersService;
+    private final AuthMgmtService mAuthService;
 
-	public LoginRestController(
-			UserHandlerService userHandlerService,
-			AuthMgmtService authMgmtService
-	) {
-		mUsersService = userHandlerService;
-		mAuthService = authMgmtService;
-	}
+    private final UserHandlerService mUsersService;
 
-	@PostMapping(
-			consumes = MediaType.APPLICATION_JSON_VALUE,
-			produces = MediaType.APPLICATION_JSON_VALUE
-	)
-	public ResponseEntity<LoginResponse> loginUser(
-			@RequestBody LoginRequest request
-	) {
-		request.validate();
+    public LoginRestController(
+            UserHandlerService userHandlerService,
+            AuthMgmtService authMgmtService
+    ) {
+        mUsersService = userHandlerService;
+        mAuthService = authMgmtService;
+    }
 
-		LoginResponse response = new LoginResponse();
-		response.setStatus(HttpStatus.OK);
-		if ("create".equals(request.getMode())) {
-			User user = mUsersService.getUser(
-					request.getUsernameOrEmail()
-			);
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<LoginResponse> loginUser(
+            @RequestBody LoginRequest request
+    ) {
+        request.validate();
 
-			if (user == null) {
-				throw new RequestValidationException(
-						"The user was not found"
-				);
-			}
+        LoginResponse response = new LoginResponse();
+        response.setStatus(HttpStatus.OK);
+        if ("create".equals(request.getMode())) {
+            User user = mUsersService.getUser(
+                    request.getUsernameOrEmail()
+            );
 
-			if (request.getDeviceInfo() != null) {
-				mUsersService.updateDeviceAndGet(
-						user, request.getDeviceInfo()
-				);
-			}
+            if (user == null) {
+                throw new RequestValidationException(
+                        "The user was not found"
+                );
+            }
 
-			if (mUsersService.isPasswordCorrect(user, request.getPassword())) {
-				Session session = mAuthService.createSession(user.getUsername());
-				response.setSessionData(session);
-			} else {
-				response.setStatus(HttpStatus.UNAUTHORIZED);
-			}
-		} else if ("renew".equals(request.getMode())) {
-			Session session = mAuthService.validateSession(request.getSessionData());
-			response.setSessionData(session);
-		} else {
-			throw new RequestValidationException(
-					"Unexpected mode"
-			);
-		}
+            if (request.getDeviceInfo() != null) {
+                mUsersService.updateDeviceAndGet(
+                        user, request.getDeviceInfo()
+                );
+            }
 
-		return ResponseEntity.status(response.getStatus()).body(response);
-	}
+            if (mUsersService.isPasswordCorrect(user, request.getPassword())) {
+                Session session = mAuthService.createSession(user.getUsername());
+                response.setSessionData(session);
+            } else {
+                response.setStatus(HttpStatus.UNAUTHORIZED);
+            }
+        } else if ("renew".equals(request.getMode())) {
+            Session session = mAuthService.validateSession(request.getSessionData());
+            response.setSessionData(session);
+        } else {
+            throw new RequestValidationException(
+                    "Unexpected mode"
+            );
+        }
+
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

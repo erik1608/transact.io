@@ -97,7 +97,7 @@ public class AlexaConfigs {
      *
      * @param applicationContext The spring application context.
      * @param oAuth2             The facade of OAuth2 subsystem.
-     * @param apiPrefix          The base path to register the endpoints with.
+     * @param apiPrefix          The base path to reg the endpoints with.
      * @return A {@link ServletRegistrationBean<HttpServlet>} with {@link AlexaSkillServlet} servlet.
      */
     @Bean
@@ -106,7 +106,8 @@ public class AlexaConfigs {
             OAuth2 oAuth2,
             @Value("${api.prefix}") String apiPrefix) {
 
-        // Get the client adapter from the facade and distribute them in the handlers.
+        // Get the client adapter from the facade
+        // and distribute them in the handlers.
         OAuthAdapter adapter = oAuth2.getAdapterWithClientCredentials(
                 getOAuthClientId()
         );
@@ -122,7 +123,10 @@ public class AlexaConfigs {
                 );
 
                 handlers.add(
-                        (BaseRequestHandler) ctor.newInstance(adapter, applicationContext)
+                        (BaseRequestHandler) ctor.newInstance(
+                                adapter,
+                                applicationContext
+                        )
                 );
             }
         } catch (ClassNotFoundException |

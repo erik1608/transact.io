@@ -26,9 +26,10 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 @Service
 public class TransactionService {
 
-    private final static ExampleMatcher TRANSACTION_ID_MATCHER = ExampleMatcher.matchingAny()
-            .withIgnorePaths("id", "amount")
-            .withMatcher("transactionId", ignoreCase());
+    private final static ExampleMatcher TRANSACTION_ID_MATCHER =
+            ExampleMatcher.matchingAny()
+                    .withIgnorePaths("id", "amount")
+                    .withMatcher("transactionId", ignoreCase());
 
     private final UsersAccountRepo mAccountsRepo;
 
@@ -45,17 +46,13 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction performTransaction(User sender, UserAccount outgoingAccount,
-                                          User recipient, UserAccount recipientAccount,
-                                          int amount) {
+    public Transaction performTransaction(
+            User sender, UserAccount outgoingAccount,
+            User recipient, UserAccount recipientAccount,
+            int amount
+    ) {
 
-        if (recipient.equals(sender) || recipient.getUsername().equals(sender.getUsername())) {
-            throw new RequestValidationException("Invalid recipient account");
-        }
-
-        if (amount == 0 || amount > outgoingAccount.getBalance()) {
-            throw new RequestValidationException("Insufficient account balance");
-        }
+        validateParams(sender, outgoingAccount, recipient, amount);
 
         TransactionResponse.Status status = TransactionResponse.Status.PENDING;
         String transactionId = UUID.randomUUID().toString();
@@ -72,16 +69,45 @@ public class TransactionService {
         return transaction;
     }
 
+    private static void validateParams(
+            User sender,
+            UserAccount outgoingAccount,
+            User recipient,
+            int amount
+    ) {
+        if (recipient.equals(sender) ||
+                recipient.getUsername().equals(sender.getUsername())) {
+
+            throw new RequestValidationException(
+                    "Invalid recipient account"
+            );
+        }
+
+        if (amount == 0 ||
+                amount > outgoingAccount.getBalance()) {
+
+            throw new RequestValidationException(
+                    "Insufficient account balance"
+            );
+        }
+    }
+
     @Transactional
     public TransactionResponse completeTransaction(String transactionId) {
         TransactionResponse response = new TransactionResponse();
         Transaction transaction;
-        Example<Transaction> transactionExample = Example.of(new Transaction().setTransactionId(transactionId), TRANSACTION_ID_MATCHER);
-        Optional<Transaction> foundTransaction = mTransactionRepo.findOne(transactionExample);
-        if (foundTransaction.isPresent()) {
-            transaction = foundTransaction.get();
+        Example<Transaction> transactionExample = Example.of(
+                new Transaction().setTransactionId(transactionId),
+                TRANSACTION_ID_MATCHER
+        );
+
+        Optional<Transaction> tx = mTransactionRepo.findOne(transactionExample);
+        if (tx.isPresent()) {
+            transaction = tx.get();
         } else {
-            throw new RequestValidationException("Unknown transactionId");
+            throw new RequestValidationException(
+                    "Unknown transactionId"
+            );
         }
 
         synchronized (this) {
@@ -115,7 +141,12 @@ public class TransactionService {
             transactionDetails.put("receivedTo", transaction.getRecipientAccount().getNumber());
 
             for (UserDevice recipientDevice : recipientDevices) {
-                mPNS.sendNotification("Credits received", confirmationText, transactionDetails, recipientDevice);
+                mPNS.sendNotification(
+                        "Credits received",
+                        confirmationText,
+                        transactionDetails,
+                        recipientDevice
+                );
             }
 
             return response.setAmount(transaction.getAmount())
