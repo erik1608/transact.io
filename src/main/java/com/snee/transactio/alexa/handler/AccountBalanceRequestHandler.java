@@ -26,48 +26,48 @@ import java.util.Optional;
  * {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}} - ["checking account"]
  */
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
-	public AccountBalanceRequestHandler(
-			OAuthAdapter clientAdapter,
-			ApplicationContext applicationContext
-	) {
-		super(clientAdapter, applicationContext);
-	}
+    public AccountBalanceRequestHandler(
+            OAuthAdapter clientAdapter,
+            ApplicationContext applicationContext
+    ) {
+        super(clientAdapter, applicationContext);
+    }
 
-	@Override
-	public boolean canHandle(HandlerInput handlerInput) {
-		return handlerInput.matches(Predicates.intentName("AccountBalanceIntent"));
-	}
+    @Override
+    public boolean canHandle(HandlerInput handlerInput) {
+        return handlerInput.matches(Predicates.intentName("AccountBalanceIntent"));
+    }
 
-	@Override
-	public Optional<Response> handle(HandlerInput handlerInput) {
-		super.handle(handlerInput);
-		User user = getUser(handlerInput);
-		if (user == null) {
-			return handlerInput.getResponseBuilder()
-					.withSpeech("Please link your account with me")
-					.withLinkAccountCard()
-					.build();
-		}
-		Slot accountTypeSlot = slots.get(ACCOUNT_TYPE_SLOT);
-		String accountType = accountTypeSlot.getValue();
-		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
-				.append(user.getFirstname())
-				.append(" ")
-				.append(user.getLastname());
-		UserAccount foundAccount = user.getAccountByName(accountType);
-		if (foundAccount == null) {
-			responseSpeechBuilder.append(", the requested ")
-					.append(accountType)
-					.append(" is unknown to your profile.");
-		} else {
-			responseSpeechBuilder.append(", you have ")
-					.append(foundAccount.getBalance())
-					.append(" credits on your ").append(accountType).append(".");
-		}
+    @Override
+    public Optional<Response> handle(HandlerInput handlerInput) {
+        super.handle(handlerInput);
+        User user = getUser(handlerInput);
+        if (user == null) {
+            return handlerInput.getResponseBuilder()
+                    .withSpeech("Please link your account with me")
+                    .withLinkAccountCard()
+                    .build();
+        }
+        Slot accountTypeSlot = slots.get(ACCOUNT_TYPE_SLOT);
+        String accountType = accountTypeSlot.getValue();
+        StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+                .append(user.getFirstname())
+                .append(" ")
+                .append(user.getLastname());
+        UserAccount foundAccount = user.getAccountByName(accountType);
+        if (foundAccount == null) {
+            responseSpeechBuilder.append(", the requested ")
+                    .append(accountType)
+                    .append(" is unknown to your profile.");
+        } else {
+            responseSpeechBuilder.append(", you have ")
+                    .append(foundAccount.getBalance())
+                    .append(" credits on your ").append(accountType).append(".");
+        }
 
-		return handlerInput.getResponseBuilder()
-				.withSpeech(responseSpeechBuilder.toString())
-				.withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
-				.build();
-	}
+        return handlerInput.getResponseBuilder()
+                .withSpeech(responseSpeechBuilder.toString())
+                .withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
+                .build();
+    }
 }

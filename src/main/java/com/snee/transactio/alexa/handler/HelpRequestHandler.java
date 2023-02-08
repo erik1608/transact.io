@@ -12,22 +12,22 @@ import java.util.Optional;
 
 // TODO: 2/8/2023 Implement.
 public class HelpRequestHandler extends BaseRequestHandler {
-	private static Logger LOG = LogManager.getLogger(HelpRequestHandler.class);
+    private static Logger LOG = LogManager.getLogger(HelpRequestHandler.class);
 
-	public HelpRequestHandler(
-			OAuthAdapter clientAdapter,
-			ApplicationContext applicationContext
-	) {
-		super(clientAdapter, applicationContext);
-	}
+    public HelpRequestHandler(
+            OAuthAdapter clientAdapter,
+            ApplicationContext applicationContext
+    ) {
+        super(clientAdapter, applicationContext);
+    }
 
-	@Override
-	public boolean canHandle(HandlerInput handlerInput) {
-		return handlerInput.matches(Predicates.intentName("AMAZON.CancelIntent"));
-	}
+    @Override
+    public boolean canHandle(HandlerInput handlerInput) {
+        return handlerInput.matches(Predicates.intentName("AMAZON.CancelIntent"));
+    }
 
-	@Override
-	public Optional<Response> handle(HandlerInput handlerInput) {
-		return Optional.empty();
-	}
+    @Override
+    public Optional<Response> handle(HandlerInput handlerInput) {
+        return Optional.empty();
+    }
 }

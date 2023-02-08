@@ -11,19 +11,19 @@ import java.util.List;
  */
 public class AlexaSkillServlet extends SkillServlet {
 
-	/**
-	 * Initializes a standard skill with the provided request handlers.
-	 *
-	 * @param skillId  The skill id.
-	 * @param handlers The registered request skill handlers to initialize the skill with.
-	 */
-	public AlexaSkillServlet(
-			String skillId,
-			List<BaseRequestHandler> handlers
-	) {
-		super(Skills.standard()
-				.addRequestHandlers(handlers.toArray(new BaseRequestHandler[0]))
-				.withSkillId(skillId)
-				.build());
-	}
+    /**
+     * Initializes a standard skill with the provided request handlers.
+     *
+     * @param skillId  The skill id.
+     * @param handlers The registered request skill handlers to initialize the skill with.
+     */
+    public AlexaSkillServlet(
+            String skillId,
+            List<BaseRequestHandler> handlers
+    ) {
+        super(Skills.standard()
+                .addRequestHandlers(handlers.toArray(new BaseRequestHandler[0]))
+                .withSkillId(skillId)
+                .build());
+    }
 }

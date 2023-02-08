@@ -10,19 +10,19 @@ import com.snee.transactio.oauth2.model.client.RegisteredClient;
 import java.util.List;
 
 public interface OAuthAdapter {
-	String generateAuthCode(AuthCodeRequest request);
+    String generateAuthCode(AuthCodeRequest request);
 
-	AccessToken generateAccessToken(TokenRequest request, String clientAuthorization);
+    AccessToken generateAccessToken(TokenRequest request, String clientAuthorization);
 
-	void configureClients(List<RegisteredClient> clients);
+    void configureClients(List<RegisteredClient> clients);
 
-	boolean canHandle(String clientId);
+    boolean canHandle(String clientId);
 
-	boolean canHandle(RegisteredClient client);
+    boolean canHandle(RegisteredClient client);
 
-	User getUser(String accessToken);
+    User getUser(String accessToken);
 
-	void setRepos(Repos repos);
+    void setRepos(Repos repos);
 
-	RegisteredClient getRegisteredClient(String clientCredential);
+    RegisteredClient getRegisteredClient(String clientCredential);
 }

@@ -6,7 +6,8 @@ package com.snee.transactio.oauth2;
 public enum OAuthAdapterAlgorithm {
     AES_ENC("aes", "enc");
 
-    final String name, use;
+    final String name;
+    final String use;
 
     OAuthAdapterAlgorithm(String name, String use) {
         this.name = name;

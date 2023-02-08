@@ -26,99 +26,99 @@ import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatc
 @Service
 public class TransactionService {
 
-	private final static ExampleMatcher TRANSACTION_ID_MATCHER = ExampleMatcher.matchingAny()
-			.withIgnorePaths("id", "amount")
-			.withMatcher("transactionId", ignoreCase());
+    private final static ExampleMatcher TRANSACTION_ID_MATCHER = ExampleMatcher.matchingAny()
+            .withIgnorePaths("id", "amount")
+            .withMatcher("transactionId", ignoreCase());
 
-	private final UsersAccountRepo mAccountsRepo;
-	private final TransactionRepo mTransactionRepo;
-	private final PushNotificationService mPNS;
+    private final UsersAccountRepo mAccountsRepo;
+    private final TransactionRepo mTransactionRepo;
+    private final PushNotificationService mPNS;
 
-	public TransactionService(Repos repos,
-	                          PushNotificationService pns) {
-		mAccountsRepo = repos.get(UsersAccountRepo.class);
-		mTransactionRepo = repos.get(TransactionRepo.class);
-		mPNS = pns;
-	}
+    public TransactionService(Repos repos,
+                              PushNotificationService pns) {
+        mAccountsRepo = repos.get(UsersAccountRepo.class);
+        mTransactionRepo = repos.get(TransactionRepo.class);
+        mPNS = pns;
+    }
 
-	@Transactional
-	public Transaction performTransaction(User sender, UserAccount outgoingAccount,
-	                                      User recipient, UserAccount recipientAccount,
-	                                      int amount) {
+    @Transactional
+    public Transaction performTransaction(User sender, UserAccount outgoingAccount,
+                                          User recipient, UserAccount recipientAccount,
+                                          int amount) {
 
-		if (recipient.equals(sender) || recipient.getUsername().equals(sender.getUsername())) {
-			throw new RequestValidationException("Invalid recipient account");
-		}
+        if (recipient.equals(sender) || recipient.getUsername().equals(sender.getUsername())) {
+            throw new RequestValidationException("Invalid recipient account");
+        }
 
-		if (amount == 0 || amount > outgoingAccount.getBalance()) {
-			throw new RequestValidationException("Insufficient account balance");
-		}
+        if (amount == 0 || amount > outgoingAccount.getBalance()) {
+            throw new RequestValidationException("Insufficient account balance");
+        }
 
-		TransactionResponse.Status status = TransactionResponse.Status.PENDING;
-		String transactionId = UUID.randomUUID().toString();
-		Transaction transaction = new Transaction()
-				.setTransactionId(transactionId)
-				.setSender(sender)
-				.setOutgoingAccount(outgoingAccount)
-				.setAmount(amount)
-				.setRecipient(recipient)
-				.setRecipientAccount(recipientAccount)
-				.setStatus(status.name());
+        TransactionResponse.Status status = TransactionResponse.Status.PENDING;
+        String transactionId = UUID.randomUUID().toString();
+        Transaction transaction = new Transaction()
+                .setTransactionId(transactionId)
+                .setSender(sender)
+                .setOutgoingAccount(outgoingAccount)
+                .setAmount(amount)
+                .setRecipient(recipient)
+                .setRecipientAccount(recipientAccount)
+                .setStatus(status.name());
 
-		mTransactionRepo.save(transaction);
-		return transaction;
-	}
+        mTransactionRepo.save(transaction);
+        return transaction;
+    }
 
-	@Transactional
-	public TransactionResponse completeTransaction(String transactionId) {
-		TransactionResponse response = new TransactionResponse();
-		Transaction transaction;
-		Example<Transaction> transactionExample = Example.of(new Transaction().setTransactionId(transactionId), TRANSACTION_ID_MATCHER);
-		Optional<Transaction> foundTransaction = mTransactionRepo.findOne(transactionExample);
-		if (foundTransaction.isPresent()) {
-			transaction = foundTransaction.get();
-		} else {
-			throw new RequestValidationException("Unknown transactionId");
-		}
+    @Transactional
+    public TransactionResponse completeTransaction(String transactionId) {
+        TransactionResponse response = new TransactionResponse();
+        Transaction transaction;
+        Example<Transaction> transactionExample = Example.of(new Transaction().setTransactionId(transactionId), TRANSACTION_ID_MATCHER);
+        Optional<Transaction> foundTransaction = mTransactionRepo.findOne(transactionExample);
+        if (foundTransaction.isPresent()) {
+            transaction = foundTransaction.get();
+        } else {
+            throw new RequestValidationException("Unknown transactionId");
+        }
 
-		synchronized (this) {
-			int amount = transaction.getAmount();
-			UserAccount outgoingAccount = transaction.getOutgoingAccount();
-			if (amount > outgoingAccount.getBalance()) {
-				throw new RequestValidationException("Insufficient Balance");
-			}
+        synchronized (this) {
+            int amount = transaction.getAmount();
+            UserAccount outgoingAccount = transaction.getOutgoingAccount();
+            if (amount > outgoingAccount.getBalance()) {
+                throw new RequestValidationException("Insufficient Balance");
+            }
 
-			UserAccount recipientAccount = transaction.getRecipientAccount();
-			recipientAccount.setBalance(recipientAccount.getBalance() + amount);
-			outgoingAccount.setBalance(outgoingAccount.getBalance() - amount);
+            UserAccount recipientAccount = transaction.getRecipientAccount();
+            recipientAccount.setBalance(recipientAccount.getBalance() + amount);
+            outgoingAccount.setBalance(outgoingAccount.getBalance() - amount);
 
-			mAccountsRepo.saveAll(Arrays.asList(recipientAccount, outgoingAccount));
-			transaction.setStatus(TransactionResponse.Status.COMPLETED.name());
-			mTransactionRepo.save(transaction);
+            mAccountsRepo.saveAll(Arrays.asList(recipientAccount, outgoingAccount));
+            transaction.setStatus(TransactionResponse.Status.COMPLETED.name());
+            mTransactionRepo.save(transaction);
 
-			// Send a notification with the transaction details.
-			User recipient = transaction.getRecipient();
-			User sender = transaction.getSender();
-			List<UserDevice> recipientDevices = recipient.getUserDevices();
-			String confirmationText = sender.getUsername() +
-					" has sent you " + transaction.getAmount() +
-					" credits to your " + transaction.getRecipientAccount().getNumber() + " account";
+            // Send a notification with the transaction details.
+            User recipient = transaction.getRecipient();
+            User sender = transaction.getSender();
+            List<UserDevice> recipientDevices = recipient.getUserDevices();
+            String confirmationText = sender.getUsername() +
+                    " has sent you " + transaction.getAmount() +
+                    " credits to your " + transaction.getRecipientAccount().getNumber() + " account";
 
-			HashMap<String, String> transactionDetails = new HashMap<>();
-			transactionDetails.put("type", "transactionDetails");
-			transactionDetails.put("transactionId", transactionId);
-			transactionDetails.put("sender", transaction.getOutgoingAccount().getNumber());
-			transactionDetails.put("amount", Integer.toString(transaction.getAmount()));
-			transactionDetails.put("receivedTo", transaction.getRecipientAccount().getNumber());
+            HashMap<String, String> transactionDetails = new HashMap<>();
+            transactionDetails.put("type", "transactionDetails");
+            transactionDetails.put("transactionId", transactionId);
+            transactionDetails.put("sender", transaction.getOutgoingAccount().getNumber());
+            transactionDetails.put("amount", Integer.toString(transaction.getAmount()));
+            transactionDetails.put("receivedTo", transaction.getRecipientAccount().getNumber());
 
-			for (UserDevice recipientDevice : recipientDevices) {
-				mPNS.sendNotification("Credits received", confirmationText, transactionDetails, recipientDevice);
-			}
+            for (UserDevice recipientDevice : recipientDevices) {
+                mPNS.sendNotification("Credits received", confirmationText, transactionDetails, recipientDevice);
+            }
 
-			return response.setAmount(transaction.getAmount())
-					.setTransactionId(transaction.getTransactionId())
-					.setStatus(TransactionResponse.Status.COMPLETED)
-					.setRecipientAccountNumber(recipientAccount.getNumber());
-		}
-	}
+            return response.setAmount(transaction.getAmount())
+                    .setTransactionId(transaction.getTransactionId())
+                    .setStatus(TransactionResponse.Status.COMPLETED)
+                    .setRecipientAccountNumber(recipientAccount.getNumber());
+        }
+    }
 }

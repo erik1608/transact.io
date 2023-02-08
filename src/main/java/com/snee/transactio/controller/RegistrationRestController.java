@@ -20,28 +20,28 @@ import java.util.Optional;
 @RestController
 @RequestMapping("${api.prefix}/reg")
 public class RegistrationRestController {
-	private static final Logger LOG = LogManager.getLogger(RegistrationRestController.class);
+    private static final Logger LOG = LogManager.getLogger(RegistrationRestController.class);
 
-	private final UserHandlerService mUserHandlerService;
-	private final AuthMgmtService mAuthMgmtService;
+    private final UserHandlerService mUserHandlerService;
+    private final AuthMgmtService mAuthMgmtService;
 
 
-	public RegistrationRestController(UserHandlerService userHandlerService, AuthMgmtService authMgmtService) {
-		mUserHandlerService = userHandlerService;
-		mAuthMgmtService = authMgmtService;
-	}
+    public RegistrationRestController(UserHandlerService userHandlerService, AuthMgmtService authMgmtService) {
+        mUserHandlerService = userHandlerService;
+        mAuthMgmtService = authMgmtService;
+    }
 
-	@PostMapping(
-			consumes = MediaType.APPLICATION_JSON_VALUE,
-			produces = MediaType.APPLICATION_JSON_VALUE
-	)
-	@ResponseBody
-	public ResponseEntity<RegistrationResponse> registerUser(@RequestBody RegistrationRequest regRequest) {
-		LOG.info(regRequest);
-		regRequest.validate();
-		RegistrationResponse regResponse = new RegistrationResponse();
-		User createdUser = mUserHandlerService.registerUser(regRequest, regResponse);
-		regResponse.setSessionData(mAuthMgmtService.createSession(createdUser.getUsername()));
-		return ResponseEntity.of(Optional.of(regResponse));
-	}
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseBody
+    public ResponseEntity<RegistrationResponse> registerUser(@RequestBody RegistrationRequest regRequest) {
+        LOG.info(regRequest);
+        regRequest.validate();
+        RegistrationResponse regResponse = new RegistrationResponse();
+        User createdUser = mUserHandlerService.registerUser(regRequest, regResponse);
+        regResponse.setSessionData(mAuthMgmtService.createSession(createdUser.getUsername()));
+        return ResponseEntity.of(Optional.of(regResponse));
+    }
 }

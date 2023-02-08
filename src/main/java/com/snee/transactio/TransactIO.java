@@ -8,12 +8,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 @SpringBootApplication
 public class TransactIO extends SpringBootServletInitializer {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TransactIO.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TransactIO.class, args);
+    }
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(TransactIO.class);
-	}
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(TransactIO.class);
+    }
 }

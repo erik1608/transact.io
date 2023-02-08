@@ -18,11 +18,11 @@ import com.snee.transactio.model.response.biometry.auth.InitAuthenticationRespon
 import com.snee.transactio.model.response.biometry.reg.DeleteRegistrationResponse;
 import com.snee.transactio.model.response.biometry.reg.FinishRegistrationResponse;
 import com.snee.transactio.model.response.biometry.reg.InitRegistrationResponse;
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -38,251 +38,322 @@ import java.util.UUID;
 @Service
 public class BiometryService {
 
-	private final UserHandlerService mUsersService;
-	private final TransactionService mTransactionService;
-	private final BiometricsRepo mBiometricsRepo;
-	private final Map<String, BiometryCache> mRequestCache = new HashMap<>();
+    private final UserHandlerService mUsersService;
+    private final TransactionService mTransactionService;
+    private final BiometricsRepo mBiometricsRepo;
+    private final Map<String, BiometryCache> mRequestCache = new HashMap<>();
 
-	public BiometryService(UserHandlerService userHandlerService, Repos repos, TransactionService transactionService) {
-		// Add the Security provider.
-		Security.addProvider(new BouncyCastleProvider());
-		mUsersService = userHandlerService;
-		mTransactionService = transactionService;
-		mBiometricsRepo = repos.get(BiometricsRepo.class);
-	}
+    public BiometryService(
+            UserHandlerService userHandlerService,
+            Repos repos,
+            TransactionService transactionService
+    ) {
+        // Add the Security provider.
+        Security.addProvider(new BouncyCastleProvider());
+        mUsersService = userHandlerService;
+        mTransactionService = transactionService;
+        mBiometricsRepo = repos.get(BiometricsRepo.class);
+    }
 
-	@Transactional
-	public InitAuthenticationResponse initAuthorization(BiometricRequest request) {
-		getBiometricRegistrationIfPresent(request);
-		InitAuthenticationResponse response = new InitAuthenticationResponse();
-		response.setCorrelationId(UUID.randomUUID().toString());
-		response.setChallenge(CryptoUtils.generateChallenge());
+    @Transactional
+    public InitAuthenticationResponse initAuth(BiometricRequest request) {
+        getRegIfPresent(request);
+        InitAuthenticationResponse response = new InitAuthenticationResponse();
+        response.setCorrelationId(UUID.randomUUID().toString());
+        response.setChallenge(CryptoUtils.generateChallenge());
 
-		BiometryCache cache = new BiometryCache();
-		cache.request = request;
-		cache.response = response;
+        BiometryCache cache = new BiometryCache();
+        cache.request = request;
+        cache.response = response;
 
-		mRequestCache.put(response.getCorrelationId(), cache);
-		return response;
-	}
+        mRequestCache.put(response.getCorrelationId(), cache);
+        return response;
+    }
 
-	@Transactional
-	public DeleteRegistrationResponse deleteRegistration(BiometricRequest request) {
-		DeleteRegistrationResponse response = new DeleteRegistrationResponse();
-		response.setStatus("SUCCESS");
-		try {
-			Biometrics registration = getBiometricRegistrationIfPresent(request);
-			mBiometricsRepo.deleteById(registration.getId());
-		} catch (EntityNotFoundException ignored) {
-		}
-		return response;
-	}
+    @Transactional
+    public DeleteRegistrationResponse deleteReg(BiometricRequest request) {
+        DeleteRegistrationResponse response = new DeleteRegistrationResponse();
+        response.setStatus("SUCCESS");
+        try {
+            Biometrics registration = getRegIfPresent(request);
+            mBiometricsRepo.deleteById(registration.getId());
+        } catch (EntityNotFoundException ignored) {
+        }
+        return response;
+    }
 
-	@Transactional
-	public FinishAuthenticationResponse authorize(BiometricRequest request) {
-		Biometrics biometricsRegistration = getBiometricRegistrationIfPresent(request);
-		FinishMessage finishMessage = new FinishMessage(request.getMessage(), request.getOperation());
-		String correlationId = finishMessage.getCorrelationId();
-		BiometryCache cache = mRequestCache.get(correlationId);
-		if (cache == null) {
-			throw new RequestValidationException("Nothing associated with the correlationId");
-		}
+    @Transactional
+    public FinishAuthenticationResponse auth(BiometricRequest request) {
+        Biometrics reg = getRegIfPresent(request);
+        FinishMessage finishAuthMsg = new FinishMessage(
+                request.getMessage(),
+                request.getOperation()
+        );
 
-		InitAuthenticationResponse initResponse;
-		initResponse = (InitAuthenticationResponse) cache.response;
+        String correlationId = finishAuthMsg.getCorrelationId();
+        BiometryCache cache = mRequestCache.get(correlationId);
+        if (cache == null) {
+            throw new RequestValidationException("Nothing associated with the correlationId");
+        }
+
+        InitAuthenticationResponse initResponse;
+        initResponse = (InitAuthenticationResponse) cache.response;
 
 
-		String originalChallenge = initResponse.getChallenge();
-		if (!originalChallenge.equals(finishMessage.getChallenge())) {
-			throw new RequestValidationException("Security constraint error");
-		}
+        String originalChallenge = initResponse.getChallenge();
+        if (!originalChallenge.equals(finishAuthMsg.getChallenge())) {
+            throw new RequestValidationException(
+                    "Security constraint error"
+            );
+        }
 
-		if (isChallengeSignatureInvalid(biometricsRegistration.getPubKeyBase64(), finishMessage.getChallenge(), finishMessage.getSignature())) {
-			throw new RequestValidationException("Challenge invalidly signed");
-		}
+        if (isChallengeSignatureInvalid(
+                reg.getPubKeyBase64(),
+                finishAuthMsg.getChallenge(),
+                finishAuthMsg.getSignature())
+        ) {
+            throw new RequestValidationException(
+                    "Challenge invalidly signed"
+            );
+        }
 
-		FinishAuthenticationResponse finishAuthResponse = new FinishAuthenticationResponse();
-		finishAuthResponse.setStatus("SUCCESS");
-		request.setSubject(cache.request.getSubject());
-		mRequestCache.remove(correlationId);
+        FinishAuthenticationResponse finishAuth = new FinishAuthenticationResponse();
+        finishAuth.setStatus("SUCCESS");
+        request.setSubject(cache.request.getSubject());
+        mRequestCache.remove(correlationId);
 
-		if (finishMessage.getTransactionId() != null) {
-			mTransactionService.completeTransaction(finishMessage.getTransactionId());
-		}
+        if (finishAuthMsg.getTransactionId() != null) {
+            mTransactionService.completeTransaction(finishAuthMsg.getTransactionId());
+        }
 
-		// Create session data for requested subject.
-		return finishAuthResponse;
-	}
+        return finishAuth;
+    }
 
-	@Transactional
-	public InitRegistrationResponse initRegistration(BiometricRequest request) {
-		InitRegistrationResponse initResponse = new InitRegistrationResponse();
-		String correlationId = UUID.randomUUID().toString();
-		initResponse.setChallenge(CryptoUtils.generateChallenge());
-		initResponse.setCorrelationId(correlationId);
+    @Transactional
+    public InitRegistrationResponse initRegistration(BiometricRequest request) {
+        InitRegistrationResponse initReg = new InitRegistrationResponse();
+        String correlationId = UUID.randomUUID().toString();
+        initReg.setChallenge(CryptoUtils.generateChallenge());
+        initReg.setCorrelationId(correlationId);
 
-		BiometryCache cache = new BiometryCache();
-		cache.request = request;
-		cache.response = initResponse;
+        BiometryCache cache = new BiometryCache();
+        cache.request = request;
+        cache.response = initReg;
 
-		mRequestCache.put(correlationId, cache);
-		return initResponse;
-	}
+        mRequestCache.put(correlationId, cache);
+        return initReg;
+    }
 
-	@Transactional
-	public FinishRegistrationResponse register(BiometricRequest request) {
-		User userInfo = mUsersService.getUser(request.getSubject());
+    @Transactional
+    public FinishRegistrationResponse register(BiometricRequest request) {
+        User userInfo = mUsersService.getUser(request.getSubject());
 
-		FinishRegistrationResponse finishRegResponse = new FinishRegistrationResponse();
-		FinishMessage finishMessage = new FinishMessage(request.getMessage(), request.getOperation());
+        FinishRegistrationResponse finishReg = new FinishRegistrationResponse();
+        FinishMessage finishRegMsg = new FinishMessage(
+                request.getMessage(),
+                request.getOperation()
+        );
 
-		String correlationId = finishMessage.getCorrelationId();
-		String challenge = finishMessage.getChallenge();
-		String publicKeyString = finishMessage.getPubKeyPEM();
-		String signature = finishMessage.getSignature();
+        String correlationId = finishRegMsg.getCorrelationId();
+        String challenge = finishRegMsg.getChallenge();
+        String publicKeyString = finishRegMsg.getPubKeyPEM();
+        String signature = finishRegMsg.getSignature();
 
-		InitRegistrationResponse initRegResponse;
-		initRegResponse = (InitRegistrationResponse) mRequestCache.get(correlationId).response;
-		if (initRegResponse == null) {
-			throw new RequestValidationException("No response associated with the correlationId");
-		}
+        InitRegistrationResponse initRegResponse;
+        initRegResponse = (InitRegistrationResponse) mRequestCache.get(correlationId).response;
+        if (initRegResponse == null) {
+            throw new RequestValidationException(
+                    "No response associated with the correlationId"
+            );
+        }
 
-		String originalChallenge = initRegResponse.getChallenge();
-		if (!originalChallenge.equals(challenge)) {
-			throw new RequestValidationException("Security constraint error");
-		}
+        String originalChallenge = initRegResponse.getChallenge();
+        if (!originalChallenge.equals(challenge)) {
+            throw new RequestValidationException(
+                    "Security constraint error"
+            );
+        }
 
-		if (isChallengeSignatureInvalid(publicKeyString, challenge, signature)) {
-			throw new RequestValidationException("Challenge invalidly signed");
-		}
+        if (isChallengeSignatureInvalid(
+                publicKeyString,
+                challenge,
+                signature)
+        ) {
+            throw new RequestValidationException(
+                    "Challenge invalidly signed"
+            );
+        }
 
-		Device deviceInfo = request.getDeviceInfo();
-		UserDevice device = mUsersService.updateUserDeviceIfNeededAndGet(userInfo, deviceInfo);
+        Device deviceInfo = request.getDeviceInfo();
+        UserDevice device = mUsersService.updateDeviceAndGet(userInfo, deviceInfo);
 
-		// Save the biometrics registration.
-		Biometrics biometricsRegistration = new Biometrics();
-		biometricsRegistration.setUser(userInfo).setPubKeyBase64(publicKeyString).setDevice(device).setPubKeyBase64(publicKeyString);
+        // Save the biometrics registration.
+        Biometrics biometricsRegistration = new Biometrics();
+        biometricsRegistration
+                .setUser(userInfo)
+                .setPubKeyBase64(publicKeyString)
+                .setDevice(device)
+                .setPubKeyBase64(publicKeyString);
 
-		finishRegResponse.setRegId(biometricsRegistration.getId());
-		mBiometricsRepo.save(biometricsRegistration);
+        finishReg.setRegId(biometricsRegistration.getId());
+        mBiometricsRepo.save(biometricsRegistration);
 
-		// Remove the cached request.
-		mRequestCache.remove(correlationId);
+        // Remove the cached request.
+        mRequestCache.remove(correlationId);
 
-		finishRegResponse.setStatus("SUCCESS");
-		return finishRegResponse;
-	}
+        finishReg.setStatus("SUCCESS");
+        return finishReg;
+    }
 
-	private boolean isChallengeSignatureInvalid(String publicKeyPEM, String challenge, String signature) {
-		try { // Verify the signature.
-			Signature sign = Signature.getInstance("SHA256withRSAandMGF1");
-			sign.initVerify(CryptoUtils.rsaPemToPublicKey(publicKeyPEM));
-			sign.update(challenge.getBytes(StandardCharsets.UTF_8));
-			return !sign.verify(Base64.getDecoder().decode(signature.getBytes()));
-		} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-			throw new RequestValidationException("Internal server error", e);
-		} catch (InvalidKeyException e) {
-			throw new RequestValidationException("Invalid key provided", e);
-		} catch (SignatureException e) {
-			throw new RequestValidationException("Challenge invalidly signed", e);
-		}
-	}
+    private boolean isChallengeSignatureInvalid(
+            String publicKeyPEM,
+            String challenge,
+            String signature
+    ) {
+        try { // Verify the signature.
+            Signature sign = Signature.getInstance("SHA256withRSAandMGF1");
+            sign.initVerify(CryptoUtils.rsaPemToPublicKey(publicKeyPEM));
+            sign.update(challenge.getBytes(StandardCharsets.UTF_8));
+            return !sign.verify(Base64.getDecoder().decode(signature.getBytes()));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RequestValidationException(
+                    "Internal server error", e
+            );
+        } catch (InvalidKeyException e) {
+            throw new RequestValidationException(
+                    "Invalid key provided", e
+            );
+        } catch (SignatureException e) {
+            throw new RequestValidationException(
+                    "Challenge invalidly signed", e
+            );
+        }
+    }
 
-	private Biometrics getBiometricRegistrationIfPresent(BiometricRequest request) {
-		User userInfo = getUserInfo(request.getSubject());
-		Device requestedDevice = request.getDeviceInfo();
-		UserDevice device = mUsersService.updateUserDeviceIfNeededAndGet(userInfo, requestedDevice);
-		Biometrics biometricsRegistration = mBiometricsRepo.findByUserAndDevice(userInfo, device);
-		if (biometricsRegistration == null) {
-			throw new RequestValidationException("Requested user does not exist");
-		}
-		return biometricsRegistration;
-	}
+    private Biometrics getRegIfPresent(BiometricRequest request) {
+        User userInfo = getUserInfo(request.getSubject());
+        Device requestedDevice = request.getDeviceInfo();
+        UserDevice device = mUsersService.updateDeviceAndGet(userInfo, requestedDevice);
+        Biometrics reg = mBiometricsRepo.findByUserAndDevice(userInfo, device);
+        if (reg == null) {
+            throw new RequestValidationException(
+                    "Requested user does not exist"
+            );
+        }
+        return reg;
+    }
 
-	private User getUserInfo(String username) {
-		User userInfo = mUsersService.getUser(username);
-		if (userInfo == null) {
-			throw new RequestValidationException("Requested user does not exist");
-		}
-		return userInfo;
-	}
+    private User getUserInfo(String username) {
+        User userInfo = mUsersService.getUser(username);
+        if (userInfo == null) {
+            throw new RequestValidationException(
+                    "Requested user does not exist"
+            );
+        }
+        return userInfo;
+    }
 
-	private static class BiometryCache {
-		BiometryResponse response;
-		BiometricRequest request;
-	}
+    private static class BiometryCache {
+        BiometryResponse response;
+        BiometricRequest request;
+    }
 
-	private static final class FinishMessage {
-		private static final String KEY_CORRELATION_ID = "correlationId";
-		private static final String KEY_CHALLENGE = "challenge";
-		private static final String KEY_SIGNATURE = "signature";
-		private static final String KEY_PUBLIC_KEY = "pubKey";
-		private static final String KEY_TRANSACTION_ID = "transactionId";
+    private static final class FinishMessage {
+        private static final String KEY_CORRELATION_ID = "correlationId";
+        private static final String KEY_CHALLENGE = "challenge";
+        private static final String KEY_SIGNATURE = "signature";
+        private static final String KEY_PUBLIC_KEY = "pubKey";
+        private static final String KEY_TRANSACTION_ID = "transactionId";
 
-		private final String mCorrelationId;
-		private final String mChallenge;
-		private final String mSignature;
-		private final String mPubKeyPEM;
-		private final String mTransactionId;
+        private final String mCorrelationId;
+        private final String mChallenge;
+        private final String mSignature;
+        private final String mPubKeyPEM;
+        private final String mTransactionId;
 
-		FinishMessage(String b64Message, BiometricOperation operation) {
-			JsonObject messageDecoded = new Gson().fromJson(new String(Base64.getDecoder().decode(b64Message), StandardCharsets.UTF_8), JsonObject.class);
-			if (!messageDecoded.has(KEY_CORRELATION_ID) || !messageDecoded.get(KEY_CORRELATION_ID).isJsonPrimitive() || !messageDecoded.get(KEY_CORRELATION_ID).getAsJsonPrimitive().isString()) {
-				throw new RequestValidationException("Missing correlation id");
-			}
-			mCorrelationId = messageDecoded.get(KEY_CORRELATION_ID).getAsString();
+        FinishMessage(String b64Message, BiometricOperation operation) {
+            byte[] msgBytes = Base64.getDecoder().decode(b64Message);
+            String msgDecoded = new String(msgBytes, StandardCharsets.UTF_8);
+            JsonObject msg = new Gson().fromJson(msgDecoded, JsonObject.class);
+            if (!msg.has(KEY_CORRELATION_ID) ||
+                    !msg.get(KEY_CORRELATION_ID).isJsonPrimitive() ||
+                    !msg.get(KEY_CORRELATION_ID).getAsJsonPrimitive().isString()) {
+                throw new RequestValidationException(
+                        "Missing correlation id"
+                );
+            }
+            mCorrelationId = msg.get(KEY_CORRELATION_ID).getAsString();
 
-			if (!messageDecoded.has(KEY_CHALLENGE) || !messageDecoded.get(KEY_CHALLENGE).isJsonPrimitive() || !messageDecoded.get(KEY_CHALLENGE).getAsJsonPrimitive().isString()) {
-				throw new RequestValidationException("Missing challenge");
-			}
-			mChallenge = messageDecoded.get(KEY_CHALLENGE).getAsString();
+            if (!msg.has(KEY_CHALLENGE) ||
+                    !msg.get(KEY_CHALLENGE).isJsonPrimitive() ||
+                    !msg.get(KEY_CHALLENGE).getAsJsonPrimitive().isString()) {
 
-			if (!messageDecoded.has(KEY_SIGNATURE) || !messageDecoded.get(KEY_SIGNATURE).isJsonPrimitive() || !messageDecoded.get(KEY_SIGNATURE).getAsJsonPrimitive().isString()) {
-				throw new RequestValidationException("Missing signature");
-			}
-			mSignature = messageDecoded.get(KEY_SIGNATURE).getAsString();
+                throw new RequestValidationException(
+                        "Missing challenge"
+                );
+            }
+            mChallenge = msg.get(KEY_CHALLENGE).getAsString();
 
-			if (messageDecoded.has(KEY_TRANSACTION_ID)) {
-				if (!messageDecoded.get(KEY_TRANSACTION_ID).isJsonPrimitive() || !messageDecoded.get(KEY_TRANSACTION_ID).getAsJsonPrimitive().isString()) {
-					throw new RequestValidationException("Invalid transactionId");
-				}
-				mTransactionId = messageDecoded.get(KEY_TRANSACTION_ID).getAsString();
-			} else {
-				mTransactionId = null;
-			}
+            if (!msg.has(KEY_SIGNATURE) ||
+                    !msg.get(KEY_SIGNATURE).isJsonPrimitive() ||
+                    !msg.get(KEY_SIGNATURE).getAsJsonPrimitive().isString()) {
+                throw new RequestValidationException(
+                        "Missing signature"
+                );
+            }
+            mSignature = msg.get(KEY_SIGNATURE).getAsString();
 
-			if (operation == BiometricOperation.FINISH_REG) {
-				if (!messageDecoded.has(KEY_SIGNATURE) || !messageDecoded.get(KEY_SIGNATURE).isJsonPrimitive() || !messageDecoded.get(KEY_SIGNATURE).getAsJsonPrimitive().isString()) {
-					throw new RequestValidationException("Public Key is invalid");
-				}
+            if (msg.has(KEY_TRANSACTION_ID)) {
+                if (!msg.get(KEY_TRANSACTION_ID).isJsonPrimitive() ||
+                        !msg.get(KEY_TRANSACTION_ID).getAsJsonPrimitive().isString()) {
+                    throw new RequestValidationException(
+                            "Invalid transactionId"
+                    );
+                }
+                mTransactionId = msg.get(KEY_TRANSACTION_ID).getAsString();
+            } else {
+                mTransactionId = null;
+            }
 
-				mPubKeyPEM = messageDecoded.get(KEY_PUBLIC_KEY).getAsString();
-				if (!CryptoUtils.isRSAPublicKey(mPubKeyPEM)) {
-					throw new RequestValidationException("Public Key is not in PEM format or is not RSA");
-				}
-			} else {
-				mPubKeyPEM = null;
-			}
-		}
+            if (operation == BiometricOperation.FINISH_REG) {
+                if (!msg.has(KEY_SIGNATURE) ||
+                        !msg.get(KEY_SIGNATURE).isJsonPrimitive() ||
+                        !msg.get(KEY_SIGNATURE).getAsJsonPrimitive().isString()) {
 
-		public String getCorrelationId() {
-			return mCorrelationId;
-		}
+                    throw new RequestValidationException(
+                            "Public Key is invalid"
+                    );
+                }
 
-		public String getChallenge() {
-			return mChallenge;
-		}
+                mPubKeyPEM = msg.get(KEY_PUBLIC_KEY).getAsString();
+                if (!CryptoUtils.isRSAPublicKey(mPubKeyPEM)) {
+                    throw new RequestValidationException(
+                            "Public Key is not in PEM format or is not RSA"
+                    );
+                }
+            } else {
+                mPubKeyPEM = null;
+            }
+        }
 
-		public String getSignature() {
-			return mSignature;
-		}
+        public String getCorrelationId() {
+            return mCorrelationId;
+        }
 
-		public String getPubKeyPEM() {
-			return mPubKeyPEM;
-		}
+        public String getChallenge() {
+            return mChallenge;
+        }
 
-		public String getTransactionId() {
-			return mTransactionId;
-		}
-	}
+        public String getSignature() {
+            return mSignature;
+        }
+
+        public String getPubKeyPEM() {
+            return mPubKeyPEM;
+        }
+
+        public String getTransactionId() {
+            return mTransactionId;
+        }
+    }
 }

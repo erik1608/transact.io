@@ -65,12 +65,6 @@ public class UserPassword {
 
     @Override
     public String toString() {
-        return "UserPassword{" +
-                "id=" + id +
-                ", algorithm='" + algorithm + '\'' +
-                ", iter_count=" + iter_count +
-                ", salt='" + salt + '\'' +
-                ", hash='" + hash + '\'' +
-                '}';
+        return "UserPassword{" + "id=" + id + ", algorithm='" + algorithm + '\'' + ", iter_count=" + iter_count + ", salt='" + salt + '\'' + ", hash='" + hash + '\'' + '}';
     }
 }

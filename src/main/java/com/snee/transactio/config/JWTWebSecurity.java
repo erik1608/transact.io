@@ -13,22 +13,22 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 @EnableWebSecurity
 public class JWTWebSecurity {
 
-	private final AuthMgmtService mAuthService;
+    private final AuthMgmtService mAuthService;
 
-	public JWTWebSecurity(AuthMgmtService authMgmtService) {
-		mAuthService = authMgmtService;
-	}
+    public JWTWebSecurity(AuthMgmtService authMgmtService) {
+        mAuthService = authMgmtService;
+    }
 
-	/**
-	 * A bean controlling authorization required paths.
-	 */
-	@Bean
-	SecurityFilterChain jwtSecurityChain(HttpSecurity http) throws Exception {
-		return http.httpBasic().disable()
-				.csrf().disable()
-				.cors().disable()
-				.antMatcher("/**")
-				.addFilterBefore(new JWTPreAuthenticationFilter(mAuthService), AbstractPreAuthenticatedProcessingFilter.class)
-				.build();
-	}
+    /**
+     * A bean controlling authorization required paths.
+     */
+    @Bean
+    SecurityFilterChain jwtSecurityChain(HttpSecurity http) throws Exception {
+        return http.httpBasic().disable()
+                .csrf().disable()
+                .cors().disable()
+                .antMatcher("/**")
+                .addFilterBefore(new JWTPreAuthenticationFilter(mAuthService), AbstractPreAuthenticatedProcessingFilter.class)
+                .build();
+    }
 }

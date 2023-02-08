@@ -11,22 +11,22 @@ import java.util.Optional;
 
 // TODO: 2/8/2023 Implement.
 public class StopRequestHandler extends BaseRequestHandler {
-	private static Logger LOG = LogManager.getLogger(StopRequestHandler.class);
+    private static Logger LOG = LogManager.getLogger(StopRequestHandler.class);
 
-	public StopRequestHandler(
-			OAuthAdapter clientAdapter,
-			ApplicationContext applicationContext
-	) {
-		super(clientAdapter, applicationContext);
-	}
+    public StopRequestHandler(
+            OAuthAdapter clientAdapter,
+            ApplicationContext applicationContext
+    ) {
+        super(clientAdapter, applicationContext);
+    }
 
-	@Override
-	public boolean canHandle(HandlerInput handlerInput) {
-		return false;
-	}
+    @Override
+    public boolean canHandle(HandlerInput handlerInput) {
+        return false;
+    }
 
-	@Override
-	public Optional<Response> handle(HandlerInput handlerInput) {
-		return Optional.empty();
-	}
+    @Override
+    public Optional<Response> handle(HandlerInput handlerInput) {
+        return Optional.empty();
+    }
 }

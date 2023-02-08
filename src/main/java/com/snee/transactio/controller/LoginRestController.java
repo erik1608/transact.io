@@ -22,7 +22,10 @@ public class LoginRestController {
 	private final AuthMgmtService mAuthService;
 	private final UserHandlerService mUsersService;
 
-	public LoginRestController(UserHandlerService userHandlerService, AuthMgmtService authMgmtService) {
+	public LoginRestController(
+			UserHandlerService userHandlerService,
+			AuthMgmtService authMgmtService
+	) {
 		mUsersService = userHandlerService;
 		mAuthService = authMgmtService;
 	}
@@ -31,19 +34,28 @@ public class LoginRestController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE
 	)
-	public ResponseEntity<LoginResponse> loginUser(@RequestBody LoginRequest request) {
+	public ResponseEntity<LoginResponse> loginUser(
+			@RequestBody LoginRequest request
+	) {
 		request.validate();
 
 		LoginResponse response = new LoginResponse();
 		response.setStatus(HttpStatus.OK);
 		if ("create".equals(request.getMode())) {
-			User user = mUsersService.getUser(request.getUsernameOrEmail());
+			User user = mUsersService.getUser(
+					request.getUsernameOrEmail()
+			);
+
 			if (user == null) {
-				throw new RequestValidationException("The user was not found");
+				throw new RequestValidationException(
+						"The user was not found"
+				);
 			}
 
 			if (request.getDeviceInfo() != null) {
-				mUsersService.updateUserDeviceIfNeededAndGet(user, request.getDeviceInfo());
+				mUsersService.updateDeviceAndGet(
+						user, request.getDeviceInfo()
+				);
 			}
 
 			if (mUsersService.isPasswordCorrect(user, request.getPassword())) {
@@ -56,7 +68,9 @@ public class LoginRestController {
 			Session session = mAuthService.validateSession(request.getSessionData());
 			response.setSessionData(session);
 		} else {
-			throw new RequestValidationException("Unexpected mode");
+			throw new RequestValidationException(
+					"Unexpected mode"
+			);
 		}
 
 		return ResponseEntity.status(response.getStatus()).body(response);

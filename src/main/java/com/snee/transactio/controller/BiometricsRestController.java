@@ -17,34 +17,34 @@ import java.util.Optional;
 @RequestMapping("${api.prefix}/biometry")
 public class BiometricsRestController {
 
-	private final AuthMgmtService mAuthSvc;
+    private final AuthMgmtService mAuthSvc;
 
-	public BiometricsRestController(AuthMgmtService authMgmtService) {
-		mAuthSvc = authMgmtService;
-	}
+    public BiometricsRestController(AuthMgmtService authMgmtService) {
+        mAuthSvc = authMgmtService;
+    }
 
-	@PostMapping(
-			path = "/reg",
-			consumes = MediaType.APPLICATION_JSON_VALUE,
-			produces = MediaType.APPLICATION_JSON_VALUE
-	)
-	@ResponseBody
-	public ResponseEntity<BiometryResponse> enrollBiometrics(@RequestBody BiometricRequest biometricRequest) {
-		biometricRequest.validate();
-		BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.REG);
-		biometryResponse.setSessionData(mAuthSvc.validateSession(biometricRequest.getSessionData()));
-		return ResponseEntity.of(Optional.of(biometryResponse));
-	}
+    @PostMapping(
+            path = "/reg",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseBody
+    public ResponseEntity<BiometryResponse> enrollBiometrics(@RequestBody BiometricRequest biometricRequest) {
+        biometricRequest.validate();
+        BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.REG);
+        biometryResponse.setSessionData(mAuthSvc.validateSession(biometricRequest.getSessionData()));
+        return ResponseEntity.of(Optional.of(biometryResponse));
+    }
 
-	@PostMapping(
-			path = "/auth",
-			consumes = MediaType.APPLICATION_JSON_VALUE,
-			produces = MediaType.APPLICATION_JSON_VALUE
-	)
-	@ResponseBody
-	public ResponseEntity<BiometryResponse> authorizeWithBiometrics(@RequestBody BiometricRequest biometricRequest) {
-		biometricRequest.validate();
-		BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.AUTH);
-		return ResponseEntity.of(Optional.of(biometryResponse));
-	}
+    @PostMapping(
+            path = "/auth",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseBody
+    public ResponseEntity<BiometryResponse> authorizeWithBiometrics(@RequestBody BiometricRequest biometricRequest) {
+        biometricRequest.validate();
+        BiometryResponse biometryResponse = mAuthSvc.processBiometryOp(biometricRequest, AuthMgmtService.BiometryOp.AUTH);
+        return ResponseEntity.of(Optional.of(biometryResponse));
+    }
 }

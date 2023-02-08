@@ -9,13 +9,13 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "oauth2")
 public class OAuth2Config {
-	private List<RegisteredClient> clients;
+    private List<RegisteredClient> clients;
 
-	public List<RegisteredClient> getClients() {
-		return clients;
-	}
+    public List<RegisteredClient> getClients() {
+        return clients;
+    }
 
-	public void setClients(List<RegisteredClient> clients) {
-		this.clients = clients;
-	}
+    public void setClients(List<RegisteredClient> clients) {
+        this.clients = clients;
+    }
 }

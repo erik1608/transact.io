@@ -1,8 +1,8 @@
 package com.snee.transactio.model.request;
 
+import com.google.gson.annotations.Expose;
 import com.snee.transactio.exceptions.RequestValidationException;
 import com.snee.transactio.model.RequestModel;
-import com.google.gson.annotations.Expose;
 
 public class Device implements RequestModel {
     @Expose

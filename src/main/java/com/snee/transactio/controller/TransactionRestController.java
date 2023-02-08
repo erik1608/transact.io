@@ -24,69 +24,69 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequestMapping("${api.prefix}/user/transact")
 public class TransactionRestController {
 
-	private final UserHandlerService mUserHandlerService;
-	private final AuthMgmtService mAuthService;
-	private final TransactionService mTransactionService;
+    private final UserHandlerService mUserHandlerService;
+    private final AuthMgmtService mAuthService;
+    private final TransactionService mTransactionService;
 
-	public TransactionRestController(UserHandlerService userHandlerService,
-	                                 AuthMgmtService authService,
-	                                 TransactionService transactionService) {
-		mAuthService = authService;
-		mUserHandlerService = userHandlerService;
-		mTransactionService = transactionService;
-	}
+    public TransactionRestController(UserHandlerService userHandlerService,
+                                     AuthMgmtService authService,
+                                     TransactionService transactionService) {
+        mAuthService = authService;
+        mUserHandlerService = userHandlerService;
+        mTransactionService = transactionService;
+    }
 
-	@PostMapping(
-			consumes = MediaType.APPLICATION_JSON_VALUE,
-			produces = MediaType.APPLICATION_JSON_VALUE
-	)
-	public ResponseEntity<TransactionResponse> transact(@RequestBody TransactionRequest request) {
-		// Validate the incoming request.
-		request.validate();
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<TransactionResponse> transact(@RequestBody TransactionRequest request) {
+        // Validate the incoming request.
+        request.validate();
 
-		// Get the transaction recipient.
-		UserAccount recipientAccount = new UserAccount();
-		recipientAccount.setNumber(request.getRecipientAccountNumber());
-		User transactionRecipient = mUserHandlerService.getUserByAccount(recipientAccount);
-		if (transactionRecipient == null) {
-			throw new RequestValidationException("Recipient user not found");
-		}
+        // Get the transaction recipient.
+        UserAccount recipientAccount = new UserAccount();
+        recipientAccount.setNumber(request.getRecipientAccountNumber());
+        User transactionRecipient = mUserHandlerService.getUserByAccount(recipientAccount);
+        if (transactionRecipient == null) {
+            throw new RequestValidationException("Recipient user not found");
+        }
 
-		for (UserAccount userAccount : transactionRecipient.getUserAccounts()) {
-			if (userAccount.getNumber().equals(recipientAccount.getNumber())) {
-				recipientAccount = userAccount;
-				break;
-			}
-		}
+        for (UserAccount userAccount : transactionRecipient.getUserAccounts()) {
+            if (userAccount.getNumber().equals(recipientAccount.getNumber())) {
+                recipientAccount = userAccount;
+                break;
+            }
+        }
 
-		// Get the outgoing account and validate it.
-		Session session = mAuthService.validateSession(request.getSessionData());
-		User userInfo = mUserHandlerService.getUser(session.getSubject());
-		String accountNumber = request.getOutgoingAccountNumber();
-		AtomicReference<UserAccount> outgoingAccount = new AtomicReference<>();
-		userInfo.getUserAccounts().forEach((account) -> {
-			if (accountNumber.equals(account.getNumber())) {
-				outgoingAccount.set(account);
-			}
-		});
+        // Get the outgoing account and validate it.
+        Session session = mAuthService.validateSession(request.getSessionData());
+        User userInfo = mUserHandlerService.getUser(session.getSubject());
+        String accountNumber = request.getOutgoingAccountNumber();
+        AtomicReference<UserAccount> outgoingAccount = new AtomicReference<>();
+        userInfo.getUserAccounts().forEach((account) -> {
+            if (accountNumber.equals(account.getNumber())) {
+                outgoingAccount.set(account);
+            }
+        });
 
-		if (outgoingAccount.get() == null) {
-			throw new RequestValidationException("Unknown outgoing account selected");
-		}
+        if (outgoingAccount.get() == null) {
+            throw new RequestValidationException("Unknown outgoing account selected");
+        }
 
-		Transaction responseTransaction = mTransactionService.performTransaction(
-				userInfo, outgoingAccount.get(),
-				transactionRecipient, recipientAccount,
-				Integer.parseInt(request.getAmount())
-		);
+        Transaction responseTransaction = mTransactionService.performTransaction(
+                userInfo, outgoingAccount.get(),
+                transactionRecipient, recipientAccount,
+                Integer.parseInt(request.getAmount())
+        );
 
-		TransactionResponse response = new TransactionResponse();
-		if (TransactionResponse.Status.PENDING.equals(TransactionResponse.Status.valueOf(responseTransaction.getStatus()))) {
-			// Since the transaction is done within the application API call, complete it right away.
-			response = mTransactionService.completeTransaction(responseTransaction.getTransactionId());
-		}
+        TransactionResponse response = new TransactionResponse();
+        if (TransactionResponse.Status.PENDING.equals(TransactionResponse.Status.valueOf(responseTransaction.getStatus()))) {
+            // Since the transaction is done within the application API call, complete it right away.
+            response = mTransactionService.completeTransaction(responseTransaction.getTransactionId());
+        }
 
-		response.setSessionData(session);
-		return ResponseEntity.of(Optional.of(response));
-	}
+        response.setSessionData(session);
+        return ResponseEntity.of(Optional.of(response));
+    }
 }

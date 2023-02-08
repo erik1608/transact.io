@@ -14,17 +14,17 @@ import java.io.IOException;
 @Configuration
 public class FirebaseMessagingConfig {
 
-	private final String mFirebaseSecretPath;
+    private final String mFirebaseSecretPath;
 
-	public FirebaseMessagingConfig(@Value("${fcm.config.path}") String firebaseSecretPath) {
-		mFirebaseSecretPath = firebaseSecretPath;
-	}
+    public FirebaseMessagingConfig(@Value("${fcm.config.path}") String firebaseSecretPath) {
+        mFirebaseSecretPath = firebaseSecretPath;
+    }
 
-	@Bean
-	public FirebaseMessaging firebaseMessaging() throws IOException {
-		GoogleCredentials googleCredentials = GoogleCredentials.fromStream(new ClassPathResource(mFirebaseSecretPath).getInputStream());
-		FirebaseOptions firebaseOptions = FirebaseOptions.builder().setCredentials(googleCredentials).build();
-		FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions);
-		return FirebaseMessaging.getInstance(app);
-	}
+    @Bean
+    public FirebaseMessaging firebaseMessaging() throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials.fromStream(new ClassPathResource(mFirebaseSecretPath).getInputStream());
+        FirebaseOptions firebaseOptions = FirebaseOptions.builder().setCredentials(googleCredentials).build();
+        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions);
+        return FirebaseMessaging.getInstance(app);
+    }
 }
