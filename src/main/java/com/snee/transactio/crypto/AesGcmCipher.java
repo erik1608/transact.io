@@ -39,6 +39,7 @@ public class AesGcmCipher {
 	 * @param strInput the input plain string.
 	 * @param padding  boolean indicating whether to add padding or not.
 	 * @return returns encrypted Base64 encoded string if successful
+	 * @throws GeneralSecurityException if the encryption is failed.
 	 */
 	public String encrypt(String strInput, boolean padding) throws GeneralSecurityException {
 		byte[] input = strInput.getBytes(StandardCharsets.UTF_8);
@@ -65,6 +66,7 @@ public class AesGcmCipher {
 	 * @param strInput encrypted base64 encoded string.
 	 * @param padding  boolean indicating whether the data has padding or not.
 	 * @return returns plain string if successful
+	 * @throws GeneralSecurityException if the decryption is failed.
 	 */
 	public String decrypt(String strInput, boolean padding) throws GeneralSecurityException {
 		byte[] input = Base64.getUrlDecoder().decode(strInput);

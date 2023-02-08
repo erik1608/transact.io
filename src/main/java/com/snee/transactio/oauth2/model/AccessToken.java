@@ -29,6 +29,7 @@ public class AccessToken {
 	 * </ul>
 	 *
 	 * @param initializedToken a String representation of the access token.
+	 * @param adapter The OAuth client adapter.
 	 */
 	public AccessToken(String initializedToken, OAuthAdapter adapter) {
 		this.initializedToken = initializedToken;
