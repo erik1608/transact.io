@@ -3,7 +3,7 @@
 </p>
 
 [![License](https://img.shields.io/pypi/l/thumbnails.svg)](https://github.com/erik1608/transactio/blob/main/LICENSE)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/caa6643d42954c1b95850d09c513040e)](https://www.codacy.com/gh/erik1608/transactio/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erik1608/transactio&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/caa6643d42954c1b95850d09c513040e)](https://www.codacy.com/gh/erik1608/transact.io/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=erik1608/transactio&amp;utm_campaign=Badge_Grade)
 
 This is the RestAPI part of a POC application, that is capable of performing transactions using linked Amazon Alexa user
 voice profile
