@@ -26,6 +26,11 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 
     private final TransactionService mTransactionService;
 
+    /**
+     *
+     * @param clientAdapter
+     * @param applicationContext
+     */
     public TransactionRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext
@@ -40,11 +45,21 @@ public class TransactionRequestHandler extends BaseRequestHandler {
         );
     }
 
+    /**
+     *
+     * @param handlerInput input to the request handler
+     * @return
+     */
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
         return handlerInput.matches(Predicates.intentName("TransactionIntent"));
     }
 
+    /**
+     *
+     * @param handlerInput input to the request handler
+     * @return
+     */
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
         super.handle(handlerInput);
@@ -62,98 +77,56 @@ public class TransactionRequestHandler extends BaseRequestHandler {
         String outgoingAccountName = slots.get(ACCOUNT_TYPE_SLOT).getValue();
         String friendAlias = slots.get(RECIPIENT_SLOT).getValue();
         if (friendAlias != null) {
-            UserRelationMapping friendMap = null;
-            List<UserRelationMapping> friends = user.getFriends();
-            for (UserRelationMapping friend : friends) {
-                if (friend.getAlias().equalsIgnoreCase(friendAlias)) {
-                    friendMap = friend;
-                }
-            }
+            return processTransaction(handlerInput, user, transactionAmount, outgoingAccountName, friendAlias);
+        }
 
-            if (friendMap == null) {
-                String response = String.format(
-                        "The user with alias %s is not associated with you. " +
-                                "Make sure that the user you are looking" +
-                                " for transaction is in " +
-                                "your friends list and has pronounceable " +
-                                "alias.", friendAlias
-                );
-                return handlerInput.getResponseBuilder()
-                        .withSpeech(response)
-                        .withSimpleCard(SKILL_TITLE, response)
-                        .build();
-            }
+        return handlerInput.getResponseBuilder()
+                .withSpeech("Failed to process the request")
+                .withSimpleCard(SKILL_TITLE, "Failed to process the request")
+                .build();
+    }
 
-            StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
-                    .append(user.getFirstname())
-                    .append(" ")
-                    .append(user.getLastname());
-            UserAccount account = user.getAccountByName(outgoingAccountName);
-            if (account == null) {
-                responseSpeechBuilder.append(", the requested ")
-                        .append(outgoingAccountName)
-                        .append(" is unknown to your profile.");
-                return handlerInput.getResponseBuilder()
-                        .withSpeech(responseSpeechBuilder.toString())
-                        .withSimpleCard(
-                                SKILL_TITLE,
-                                responseSpeechBuilder.toString()
-                        )
-                        .build();
-            }
+    /**
+     *
+     * @param handlerInput
+     * @param user
+     * @param txAmount
+     * @param outgoingAccountName
+     * @param friendAlias
+     * @return
+     */
+    private Optional<Response> processTransaction(
+            HandlerInput handlerInput,
+            User user,
+            int txAmount,
+            String outgoingAccountName,
+            String friendAlias
+    ) {
+        UserRelationMapping friend = getFriend(user, friendAlias);
 
-            User recipient = friendMap.getFriend();
-            UserAccount recipientAccount = recipient.getPrimaryAccount();
-            BiometricsRepo repo = applicationContext
-                    .getBean(Repos.class)
-                    .get(BiometricsRepo.class);
-            UserDevice biometryEligibleDevice = null;
-            for (UserDevice device : user.getUserDevices()) {
-                Biometrics biometrics = repo.findByUserAndDevice(user, device);
-                if (biometrics != null) {
-                    biometryEligibleDevice = device;
-                    break;
-                }
-            }
-
-            if (biometryEligibleDevice == null) {
-                String message = "You don't have a device," +
-                        " that is eligible for transaction confirmation" +
-                        ", please register a biometric credential" +
-                        " and try again.";
-
-                return handlerInput.getResponseBuilder()
-                        .withSpeech(message)
-                        .withSimpleCard(SKILL_TITLE, message)
-                        .build();
-            }
-
-            Transaction transaction = mTransactionService.performTransaction(
-                    user,
-                    account,
-                    recipient,
-                    recipientAccount,
-                    transactionAmount
+        if (friend == null) {
+            String response = String.format(
+                    "The user with alias %s is not associated with you. " +
+                            "Make sure that the user you are looking" +
+                            " for transaction is in " +
+                            "your friends list and has pronounceable " +
+                            "alias.", friendAlias
             );
+            return handlerInput.getResponseBuilder()
+                    .withSpeech(response)
+                    .withSimpleCard(SKILL_TITLE, response)
+                    .build();
+        }
 
-            HashMap<String, String> details = new HashMap<>();
-            details.put("transactionId", transaction.getTransactionId());
-            details.put("type", "transactionConfirmation");
-
-            mPushNotificationService.sendNotification(
-                    "Confirm the transaction",
-                    String.format(
-                            "Confirm transaction with total amount %d" +
-                                    " made using Alexa",
-                            transactionAmount
-                    ),
-                    details,
-                    biometryEligibleDevice
-            );
-            responseSpeechBuilder.append(", a push notification has been " +
-                    "sent to your device," +
-                    " please complete the transaction" +
-                    " for the funds to be transferred.");
+        StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+                .append(user.getFirstname())
+                .append(" ")
+                .append(user.getLastname());
+        UserAccount account = user.getAccountByName(outgoingAccountName);
+        if (account == null) {
+            responseSpeechBuilder.append(", the requested ")
+                    .append(outgoingAccountName)
+                    .append(" is unknown to your profile.");
             return handlerInput.getResponseBuilder()
                     .withSpeech(responseSpeechBuilder.toString())
                     .withSimpleCard(
@@ -163,9 +136,104 @@ public class TransactionRequestHandler extends BaseRequestHandler {
                     .build();
         }
 
+        User recipient = friend.getFriend();
+        UserAccount recipientAccount = recipient.getPrimaryAccount();
+        BiometricsRepo repo = applicationContext
+                .getBean(Repos.class)
+                .get(BiometricsRepo.class);
+        UserDevice device = getUserDevice(user, repo);
+        if (device == null) {
+            String message = "You don't have a device," +
+                    " that is eligible for transaction confirmation" +
+                    ", please register a biometric credential" +
+                    " and try again.";
+
+            return handlerInput.getResponseBuilder()
+                    .withSpeech(message)
+                    .withSimpleCard(SKILL_TITLE, message)
+                    .build();
+        }
+
+        Transaction transaction = mTransactionService.performTransaction(
+                user,
+                account,
+                recipient,
+                recipientAccount,
+                txAmount
+        );
+
+        sendPush(txAmount, device, transaction);
+
+        responseSpeechBuilder.append(", a push notification has been " +
+                "sent to your device," +
+                " please complete the transaction" +
+                " for the funds to be transferred.");
+
         return handlerInput.getResponseBuilder()
-                .withSpeech("Failed to process the request")
-                .withSimpleCard(SKILL_TITLE, "Failed to process the request")
+                .withSpeech(responseSpeechBuilder.toString())
+                .withSimpleCard(
+                        SKILL_TITLE,
+                        responseSpeechBuilder.toString()
+                )
                 .build();
+    }
+
+    /**
+     *
+     * @param user
+     * @param repo
+     * @return
+     */
+    private static UserDevice getUserDevice(User user, BiometricsRepo repo) {
+        for (UserDevice uDevice : user.getUserDevices()) {
+            Biometrics reg = repo.findByUserAndDevice(user, uDevice);
+            if (reg != null) {
+                return uDevice;
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param user
+     * @param friendAlias
+     * @return
+     */
+    private UserRelationMapping getFriend(User user, String friendAlias) {
+        List<UserRelationMapping> friends = user.getFriends();
+        for (UserRelationMapping friend : friends) {
+            if (friend.getAlias().equalsIgnoreCase(friendAlias)) {
+                return friend;
+            }
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param transactionAmount
+     * @param device
+     * @param transaction
+     */
+    private void sendPush(
+            int transactionAmount,
+            UserDevice device,
+            Transaction transaction
+    ) {
+
+        HashMap<String, String> details = new HashMap<>();
+        details.put("transactionId", transaction.getTransactionId());
+        details.put("type", "transactionConfirmation");
+        String message = String.format(
+                "Confirm transaction with total amount %d made using Alexa",
+                transactionAmount
+        );
+        mPushNotificationService.sendNotification(
+                "Confirm the transaction",
+                message,
+                details,
+                device
+        );
     }
 }

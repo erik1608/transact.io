@@ -25,27 +25,43 @@ public class Device implements RequestModel {
 
     @Override
     public void validate() {
-        if (deviceId == null || deviceId.isEmpty()) {
-            throw new RequestValidationException("The device id is missing");
-        }
+        validateDeviceId();
+        validateDeviceModel();
+        validatePlatform();
+        validateManufacturer();
+        validateVersion();
 
-        if (model == null || model.isEmpty()) {
-            throw new RequestValidationException("The model is missing");
-        }
+        push.validate();
+    }
 
-        if (platform == null || platform.isEmpty()) {
-            throw new RequestValidationException("The platform is missing");
-        }
-
-        if (manufacturer == null || manufacturer.isEmpty()) {
-            throw new RequestValidationException("The manufacturer is missing");
-        }
-
+    private void validateVersion() {
         if (version == null || version.isEmpty()) {
             throw new RequestValidationException("The manufacturer is missing");
         }
+    }
 
-        push.validate();
+    private void validateManufacturer() {
+        if (manufacturer == null || manufacturer.isEmpty()) {
+            throw new RequestValidationException("The manufacturer is missing");
+        }
+    }
+
+    private void validatePlatform() {
+        if (platform == null || platform.isEmpty()) {
+            throw new RequestValidationException("The platform is missing");
+        }
+    }
+
+    private void validateDeviceModel() {
+        if (model == null || model.isEmpty()) {
+            throw new RequestValidationException("The model is missing");
+        }
+    }
+
+    private void validateDeviceId() {
+        if (deviceId == null || deviceId.isEmpty()) {
+            throw new RequestValidationException("The device id is missing");
+        }
     }
 
     public String getModel() {

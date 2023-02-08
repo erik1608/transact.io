@@ -120,13 +120,17 @@ public class BiometryService {
             );
         }
 
-        FinishAuthenticationResponse finishAuth = new FinishAuthenticationResponse();
+        FinishAuthenticationResponse finishAuth =
+                new FinishAuthenticationResponse();
+
         finishAuth.setStatus("SUCCESS");
         request.setSubject(cache.request.getSubject());
         mRequestCache.remove(correlationId);
 
         if (finishAuthMsg.getTransactionId() != null) {
-            mTransactionService.completeTransaction(finishAuthMsg.getTransactionId());
+            mTransactionService.completeTransaction(
+                    finishAuthMsg.getTransactionId()
+            );
         }
 
         return finishAuth;
@@ -162,8 +166,10 @@ public class BiometryService {
         String publicKeyString = finishRegMsg.getPubKeyPEM();
         String signature = finishRegMsg.getSignature();
 
-        InitRegistrationResponse initRegResponse;
-        initRegResponse = (InitRegistrationResponse) mRequestCache.get(correlationId).response;
+        InitRegistrationResponse initRegResponse =
+                (InitRegistrationResponse) mRequestCache.get(correlationId)
+                        .response;
+
         if (initRegResponse == null) {
             throw new RequestValidationException(
                     "No response associated with the correlationId"
@@ -263,21 +269,38 @@ public class BiometryService {
 
     private static final class FinishMessage {
         private static final String KEY_CORRELATION_ID = "correlationId";
+
         private static final String KEY_CHALLENGE = "challenge";
+
         private static final String KEY_SIGNATURE = "signature";
+
         private static final String KEY_PUBLIC_KEY = "pubKey";
+
         private static final String KEY_TRANSACTION_ID = "transactionId";
 
         private final String mCorrelationId;
+
         private final String mChallenge;
+
         private final String mSignature;
+
         private final String mPubKeyPEM;
+
         private final String mTransactionId;
 
         FinishMessage(String b64Message, BiometricOperation operation) {
             byte[] msgBytes = Base64.getDecoder().decode(b64Message);
             String msgDecoded = new String(msgBytes, StandardCharsets.UTF_8);
             JsonObject msg = new Gson().fromJson(msgDecoded, JsonObject.class);
+            mCorrelationId = getCorrelationId(msg);
+            mChallenge = getChallenge(msg);
+            mSignature = getSignature(msg);
+            mTransactionId = getTransactionId(msg);
+            mPubKeyPEM = getPubKeyPEM(operation, msg);
+        }
+
+        private String getCorrelationId(JsonObject msg) {
+            final String mCorrelationId;
             if (!msg.has(KEY_CORRELATION_ID) ||
                     !msg.get(KEY_CORRELATION_ID).isJsonPrimitive() ||
                     !msg.get(KEY_CORRELATION_ID).getAsJsonPrimitive().isString()) {
@@ -286,7 +309,11 @@ public class BiometryService {
                 );
             }
             mCorrelationId = msg.get(KEY_CORRELATION_ID).getAsString();
+            return mCorrelationId;
+        }
 
+        private String getChallenge(JsonObject msg) {
+            final String mChallenge;
             if (!msg.has(KEY_CHALLENGE) ||
                     !msg.get(KEY_CHALLENGE).isJsonPrimitive() ||
                     !msg.get(KEY_CHALLENGE).getAsJsonPrimitive().isString()) {
@@ -296,7 +323,11 @@ public class BiometryService {
                 );
             }
             mChallenge = msg.get(KEY_CHALLENGE).getAsString();
+            return mChallenge;
+        }
 
+        private String getSignature(JsonObject msg) {
+            final String mSignature;
             if (!msg.has(KEY_SIGNATURE) ||
                     !msg.get(KEY_SIGNATURE).isJsonPrimitive() ||
                     !msg.get(KEY_SIGNATURE).getAsJsonPrimitive().isString()) {
@@ -305,7 +336,11 @@ public class BiometryService {
                 );
             }
             mSignature = msg.get(KEY_SIGNATURE).getAsString();
+            return mSignature;
+        }
 
+        private String getTransactionId(JsonObject msg) {
+            final String mTransactionId;
             if (msg.has(KEY_TRANSACTION_ID)) {
                 if (!msg.get(KEY_TRANSACTION_ID).isJsonPrimitive() ||
                         !msg.get(KEY_TRANSACTION_ID).getAsJsonPrimitive().isString()) {
@@ -317,7 +352,11 @@ public class BiometryService {
             } else {
                 mTransactionId = null;
             }
+            return mTransactionId;
+        }
 
+        private String getPubKeyPEM(BiometricOperation operation, JsonObject msg) {
+            final String mPubKeyPEM;
             if (operation == BiometricOperation.FINISH_REG) {
                 if (!msg.has(KEY_SIGNATURE) ||
                         !msg.get(KEY_SIGNATURE).isJsonPrimitive() ||
@@ -337,6 +376,7 @@ public class BiometryService {
             } else {
                 mPubKeyPEM = null;
             }
+            return mPubKeyPEM;
         }
 
         public String getCorrelationId() {

@@ -10,11 +10,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class RegistrationRequest implements RequestModel {
-    private static final String PHONE_NUMBER_REGEX = "^\\+(?:[0-9] ?){6,14}[0-9]$";
-    private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile(PHONE_NUMBER_REGEX);
+    private static final String PHONE_NUMBER_REGEX = "^\\+(?:[0-9] ?)" +
+            "{6,14}[0-9]$";
 
-    private static final String EMAIL_REGEX = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    private static final Pattern PHONE_NUMBER_PATTERN =
+            Pattern.compile(PHONE_NUMBER_REGEX);
+
+    private static final String EMAIL_REGEX = "^(?=.{1,64}@)" +
+            "[A-Za-z0-9_-]" +
+            "+(\\.[A-Za-z0-9_-]+)" +
+            "*@[^-][A-Za-z0-9-]+" +
+            "(\\.[A-Za-z0-9-]+)*" +
+            "(\\.[A-Za-z]{2,})$";
+
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile(EMAIL_REGEX);
 
     @Expose
     private String firstname;
@@ -44,32 +54,76 @@ public class RegistrationRequest implements RequestModel {
     private Device deviceInfo;
 
     public void validate() {
+        validateFirstname();
+        validateLastname();
+        validateUsername();
+        validatePhone();
+        validateEmail();
+        validateAge();
+        validatePassword();
+
+        if (deviceInfo != null) {
+            deviceInfo.validate();
+        } else {
+            throw new RequestValidationException(
+                    "Device information is missing confirmation mismatch!"
+            );
+        }
+    }
+
+    private void validateFirstname() {
         if (firstname == null || firstname.isEmpty()) {
-            throw new RequestValidationException("The first name is required");
+            throw new RequestValidationException(
+                    "The first name is required"
+            );
         }
+    }
 
+    private void validateLastname() {
         if (lastname == null || lastname.isEmpty()) {
-            throw new RequestValidationException("The last name is required");
+            throw new RequestValidationException(
+                    "The last name is required"
+            );
         }
+    }
 
+    private void validateUsername() {
         if (userName == null || userName.isEmpty()) {
-            throw new RequestValidationException("The username is required");
+            throw new RequestValidationException(
+                    "The username is required"
+            );
         }
+    }
 
+    private void validatePhone() {
         if (phoneNumber == null || phoneNumber.isEmpty()) {
-            throw new RequestValidationException("The phone number is required");
+            throw new RequestValidationException(
+                    "The phone number is required"
+            );
         } else if (!isPhoneNumberValid(phoneNumber)) {
-            throw new RequestValidationException("The phone number is invalidly formatted");
+            throw new RequestValidationException(
+                    "The phone number is invalidly formatted"
+            );
         }
+    }
 
+    private void validateEmail() {
         if (email == null || email.isEmpty()) {
-            throw new RequestValidationException("The email is required");
+            throw new RequestValidationException(
+                    "The email is required"
+            );
         } else if (!isEmailValid(email)) {
-            throw new RequestValidationException("The email is invalidly formatted");
+            throw new RequestValidationException(
+                    "The email is invalidly formatted"
+            );
         }
+    }
 
+    private void validateAge() {
         if (dateOfBirth == null || dateOfBirth.isEmpty()) {
-            throw new RequestValidationException("The date of birth is required");
+            throw new RequestValidationException(
+                    "The date of birth is required"
+            );
         } else {
             // The age of the user must be 21+
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -79,26 +133,30 @@ public class RegistrationRequest implements RequestModel {
             int year = Integer.parseInt(dateOfBirth.split("-")[0]);
             int currentYear = Integer.parseInt(dtf.format(now).split("-")[0]);
             if ((currentYear - year) < 21) {
-                throw new RequestValidationException("The legal registration age should be 21+");
+                throw new RequestValidationException(
+                        "The legal registration age should be 21+"
+                );
             }
         }
+    }
 
+    private void validatePassword() {
         if (password == null || password.isEmpty()) {
-            throw new RequestValidationException("The password is required");
+            throw new RequestValidationException(
+                    "The password is required"
+            );
         }
 
         if (passwordConfirmation == null || passwordConfirmation.isEmpty()) {
-            throw new RequestValidationException("The password confirmation is required");
+            throw new RequestValidationException(
+                    "The password confirmation is required"
+            );
         }
 
         if (!password.equals(passwordConfirmation)) {
-            throw new RequestValidationException("Password confirmation mismatch!");
-        }
-
-        if (deviceInfo != null) {
-            deviceInfo.validate();
-        } else {
-            throw new RequestValidationException("Device information is missing confirmation mismatch!");
+            throw new RequestValidationException(
+                    "Password confirmation mismatch!"
+            );
         }
     }
 

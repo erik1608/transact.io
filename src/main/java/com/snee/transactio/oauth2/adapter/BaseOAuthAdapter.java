@@ -48,18 +48,12 @@ public abstract class BaseOAuthAdapter implements OAuthAdapter {
             throw new IllegalArgumentException("The client credential must not be null or empty");
         }
 
-        String clientId;
+        String clientId = clientCred;
         String clientSecret = null;
-        if (clientCred.contains(":")) {
+        if (clientId.contains(":")) {
             String[] clientCredsCombined = clientCred.split(":");
             clientId = clientCredsCombined[0];
             clientSecret = clientCredsCombined[1];
-        } else {
-            clientId = clientCred;
-        }
-
-        if (clientId == null) {
-            throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT.getException();
         }
 
         // Try to find the registered client with the provided clientId
@@ -71,6 +65,12 @@ public abstract class BaseOAuthAdapter implements OAuthAdapter {
             }
         }
 
+        validateClient(clientSecret, client);
+
+        return client;
+    }
+
+    private void validateClient(String clientSecret, RegisteredClient client) {
         // If the client was not found throw an UNAUTHORIZED exception.
         if (client == null) {
             throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT.getException();
@@ -80,7 +80,5 @@ public abstract class BaseOAuthAdapter implements OAuthAdapter {
         if (clientSecret != null && !client.getSecret().equals(clientSecret)) {
             throw OAuth2StdErrorResponse.UNAUTHORIZED_CLIENT.getException();
         }
-
-        return client;
     }
 }
