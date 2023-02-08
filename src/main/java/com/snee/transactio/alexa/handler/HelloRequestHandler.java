@@ -33,7 +33,7 @@ public class HelloRequestHandler extends BaseRequestHandler {
 		StringBuilder speech = new StringBuilder("Hello ");
 		speech.append(user.getFirstname()).append(" ").append(user.getLastname());
 		return handlerInput.getResponseBuilder().withSpeech(speech.toString())
-				.withSimpleCard(CARD_TITLE, speech.toString())
+				.withSimpleCard(SKILL_TITLE, speech.toString())
 				.build();
 	}
 }

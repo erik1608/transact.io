@@ -11,8 +11,13 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.Optional;
 
+/**
+ * Base class for the Skill request handlers.
+ * Common methods for all request handlers must be implmented here,
+ * and should have protected access.
+ */
 public abstract class BaseRequestHandler implements RequestHandler {
-	protected static final String CARD_TITLE = "Transact.IO";
+	protected static final String SKILL_TITLE = "Transact.IO";
 
 	protected final Logger LOG = LogManager.getLogger(this.getClass());
 	protected final OAuthAdapter clientAdapter;
@@ -32,6 +37,12 @@ public abstract class BaseRequestHandler implements RequestHandler {
 	@Override
 	public abstract Optional<Response> handle(HandlerInput handlerInput);
 
+	/**
+	 * Gets the linked user information using the access token.
+	 *
+	 * @param input The incoming request.
+	 * @return {@link User} information.
+	 */
 	protected User getUser(HandlerInput input) {
 		String accessTokenStr = input.getRequestEnvelope()
 				.getSession()

@@ -77,7 +77,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 				);
 				return handlerInput.getResponseBuilder()
 						.withSpeech(response)
-						.withSimpleCard(CARD_TITLE, response)
+						.withSimpleCard(SKILL_TITLE, response)
 						.build();
 			}
 
@@ -86,7 +86,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 				responseSpeechBuilder.append(", the requested ").append(outgoingAccountName).append(" is unknown to your profile.");
 				return handlerInput.getResponseBuilder()
 						.withSpeech(responseSpeechBuilder.toString())
-						.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+						.withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
 						.build();
 			}
 
@@ -108,7 +108,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 
 				return handlerInput.getResponseBuilder()
 						.withSpeech(message)
-						.withSimpleCard(CARD_TITLE, message).build();
+						.withSimpleCard(SKILL_TITLE, message).build();
 			}
 
 			Transaction transaction = mTransactionService.performTransaction(
@@ -132,13 +132,13 @@ public class TransactionRequestHandler extends BaseRequestHandler {
 			responseSpeechBuilder.append(", a push notification has been sent to your device, please complete the transaction for the funds to be transferred.");
 			return handlerInput.getResponseBuilder()
 					.withSpeech(responseSpeechBuilder.toString())
-					.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+					.withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
 					.build();
 		}
 
 		return handlerInput.getResponseBuilder()
 				.withSpeech("Failed to process the request")
-				.withSimpleCard(CARD_TITLE, "Failed to process the request")
+				.withSimpleCard(SKILL_TITLE, "Failed to process the request")
 				.build();
 	}
 }

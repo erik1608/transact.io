@@ -34,7 +34,7 @@ public class AlexaLaunchRequestHandler extends BaseRequestHandler {
 		return handlerInput.getResponseBuilder()
 				.withReprompt(LAUNCH_RESPONSE)
 				.withSpeech(LAUNCH_RESPONSE)
-				.withSimpleCard(CARD_TITLE, LAUNCH_RESPONSE)
+				.withSimpleCard(SKILL_TITLE, LAUNCH_RESPONSE)
 				.build();
 	}
 }
