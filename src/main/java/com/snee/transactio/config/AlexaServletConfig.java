@@ -26,32 +26,40 @@ public class AlexaServletConfig {
 			OAuth2 oAuth2,
 			@Value("${api.prefix}") String apiPrefix) {
 
-        // Get the client adapter from the facade and distribute them in the handlers.
-        OAuthAdapter adapter = oAuth2.getAdapterWithClientCredentials(
-                alexaConfigs.getOauthClientId()
-        );
+		// Get the client adapter from the facade and distribute them in the handlers.
+		OAuthAdapter adapter = oAuth2.getAdapterWithClientCredentials(
+				alexaConfigs.getOauthClientId()
+		);
 
-        // Initialize the handlers.
-        List<BaseRequestHandler> handlers = new ArrayList<>();
-        try {
-            for (String handlerName : alexaConfigs.getHandlers()) {
-                Class<?> clazz = Class.forName(handlerName);
-                Constructor<?> ctor = clazz.getConstructor(OAuthAdapter.class, ApplicationContext.class);
-                handlers.add((BaseRequestHandler) ctor.newInstance(adapter, applicationContext));
-            }
-        } catch (ClassNotFoundException |
-                 ClassCastException |
-                 NoSuchMethodException |
-                 InstantiationException |
-                 IllegalAccessException |
-                 InvocationTargetException ignored) {
-        }
+		// Initialize the handlers.
+		List<BaseRequestHandler> handlers = new ArrayList<>();
+		try {
+			for (String handlerName : alexaConfigs.getHandlers()) {
+				Class<?> clazz = Class.forName(handlerName);
+				Constructor<?> ctor = clazz.getConstructor(
+						OAuthAdapter.class,
+						ApplicationContext.class
+				);
+
+				handlers.add(
+						(BaseRequestHandler) ctor.newInstance(adapter, applicationContext)
+				);
+			}
+		} catch (ClassNotFoundException |
+		         ClassCastException |
+		         NoSuchMethodException |
+		         InstantiationException |
+		         IllegalAccessException |
+		         InvocationTargetException ignored) {
+		}
 
 		// Construct the servlet registration bean.
-		ServletRegistrationBean<HttpServlet> alexaServletRegistrationBean = new ServletRegistrationBean<>();
-		alexaServletRegistrationBean.addUrlMappings(apiPrefix + "/alexa/*");
-		alexaServletRegistrationBean.setServlet(new AlexaSkillServlet(alexaConfigs.getSkillId(), handlers));
-		alexaServletRegistrationBean.setLoadOnStartup(1);
-		return alexaServletRegistrationBean;
+		ServletRegistrationBean<HttpServlet> alexa = new ServletRegistrationBean<>();
+		alexa.addUrlMappings(apiPrefix + "/alexa/*");
+		alexa.setServlet(
+				new AlexaSkillServlet(alexaConfigs.getSkillId(), handlers)
+		);
+		alexa.setLoadOnStartup(1);
+		return alexa;
 	}
 }
