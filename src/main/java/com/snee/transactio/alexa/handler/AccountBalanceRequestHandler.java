@@ -14,6 +14,20 @@ import org.springframework.context.ApplicationContext;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * The account 3 request handler. <br>
+ * <p>
+ * Intent - <b>AccountBalanceIntent</b> <br>
+ * Slot names - [{@link SlotName#ACCOUNT_TYPE}] <br>
+ * <p>
+ * Utterance samples:
+ * <ul>
+ *  <li>Alexa, ask <b>diploma work</b> for my {@link SlotName#ACCOUNT_TYPE} balance.</li>
+ * </ul>
+ * <p>
+ * Slot values: <br>
+ * {@link SlotName#ACCOUNT_TYPE} - ["checking account"]
+ */
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
 	public AccountBalanceRequestHandler(
 			OAuthAdapter clientAdapter,
@@ -36,7 +50,8 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 					.withLinkAccountCard()
 					.build();
 		}
-		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ").append(user.getFirstname()).append(" ").append(user.getLastname());
+		StringBuilder responseSpeechBuilder = new StringBuilder("Dear ")
+				.append(user.getFirstname()).append(" ").append(user.getLastname());
 		IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
 		Map<String, Slot> slots = intentRequest.getIntent().getSlots();
 		Slot accountTypeSlot = slots.get(SlotName.ACCOUNT_TYPE);
@@ -54,7 +69,7 @@ public class AccountBalanceRequestHandler extends BaseRequestHandler {
 
 		return handlerInput.getResponseBuilder()
 				.withSpeech(responseSpeechBuilder.toString())
-				.withSimpleCard(CARD_TITLE, responseSpeechBuilder.toString())
+				.withSimpleCard(SKILL_TITLE, responseSpeechBuilder.toString())
 				.build();
 	}
 }
