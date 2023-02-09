@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserInfoRestController {
 
     private final UserHandlerService mUserHandlerService;
+
     private final AuthMgmtService mAuthService;
 
     public UserInfoRestController(

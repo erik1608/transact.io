@@ -75,7 +75,6 @@ public class AuthMgmtService {
             @NonNull BiometricRequest request,
             @NonNull BiometryOp op
     ) {
-        BiometryResponse response;
         switch (op) {
             case REG:
                 return getRegResponse(request);

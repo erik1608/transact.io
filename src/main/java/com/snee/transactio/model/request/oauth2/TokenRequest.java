@@ -1,11 +1,17 @@
 package com.snee.transactio.model.request.oauth2;
 
+import com.google.gson.annotations.Expose;
 import com.snee.transactio.exceptions.RequestValidationException;
 import com.snee.transactio.model.RequestModel;
 
 public class TokenRequest implements RequestModel {
+    @Expose
     private String grant_type;
+
+    @Expose
     private String code;
+
+    @Expose
     private String redirect_uri;
 
     @Override

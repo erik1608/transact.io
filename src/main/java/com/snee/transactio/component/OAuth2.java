@@ -14,6 +14,7 @@ import java.util.List;
 @Component
 public class OAuth2 {
     private final List<OAuthAdapter> mAdapters;
+
     private final Repos mRepos;
 
     public OAuth2(List<OAuthAdapter> adapters, Repos repos) {

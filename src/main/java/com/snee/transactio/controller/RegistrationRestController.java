@@ -23,6 +23,7 @@ public class RegistrationRestController {
     );
 
     private final UserHandlerService mUserHandlerService;
+
     private final AuthMgmtService mAuthMgmtService;
 
 

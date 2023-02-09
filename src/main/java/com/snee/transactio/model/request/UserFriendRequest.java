@@ -10,12 +10,17 @@ import java.util.List;
 
 public class UserFriendRequest implements RequestModel {
     public static final String REQUEST_MODE_ADD = "add";
+
     public static final String REQUEST_MODE_GET = "get";
+
     public static final String REQUEST_MODE_UPDATE = "update";
+
     public static final String REQUEST_MODE_DELETE = "delete";
 
     public static final String REQUEST_STATUS_PENDING = "PENDING";
+
     public static final String REQUEST_STATUS_ACCEPTED = "ACCEPTED";
+
     public static final String REQUEST_STATUS_DECLINED = "DECLINED";
 
     public static final List<String> FRIEND_REQUEST_STATUSES = Arrays.asList(
