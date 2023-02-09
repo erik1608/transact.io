@@ -8,6 +8,9 @@ import com.snee.transactio.oauth2.model.client.RegisteredClient;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * OAuth2 access token POJO.
+ */
 public class AccessToken {
 
     private String tokenContentDelim = ":";
@@ -92,26 +95,53 @@ public class AccessToken {
         }
     }
 
+    /**
+     * Getter for the token_type of the access_token.
+     *
+     * @return the access_token token type.
+     */
     public String getTokenType() {
         return tokenType;
     }
 
+    /**
+     * Setter for the token_type of the access_token.
+     */
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
     }
 
+    /**
+     * Getter for the "access_token" string representation.
+     *
+     * @return {@link AccessToken} as string.
+     */
     public String getToken() {
         return initializedToken;
     }
 
+    /**
+     * Getter for the encrypted part of the access token.
+     *
+     * @return The encrypted part of the access token.
+     */
     public String getData() {
         return data;
     }
 
+    /**
+     * Setter for the already initialized "access_token" string representation.
+     */
     public void setToken(String token) {
         this.initializedToken = token;
     }
 
+    /**
+     * Getter for the decoded access_token parts' delimiter.
+     *
+     * @return the decoded access_token parts' delimiter.
+     */
+    @SuppressWarnings("unused")
     public String getTokenContentDelim() {
         return tokenContentDelim;
     }
@@ -121,11 +151,18 @@ public class AccessToken {
      *
      * @param tokenContentDelim The delimiter for the decoded token.
      */
+    @SuppressWarnings("unused")
     public void setTokenContentDelim(String tokenContentDelim) {
         this.tokenContentDelim = tokenContentDelim;
         serialize();
     }
 
+    /**
+     * Getter for the {@link RegisteredClient} instance,
+     * that the access token issued to.
+     *
+     * @return {@link RegisteredClient} instance.
+     */
     public RegisteredClient getClient() {
         return client;
     }

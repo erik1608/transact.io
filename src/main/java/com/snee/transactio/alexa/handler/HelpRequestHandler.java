@@ -9,8 +9,21 @@ import org.springframework.context.ApplicationContext;
 import java.util.Optional;
 
 // TODO: 2/8/2023 Implement.
+@SuppressWarnings("unused")
 public class HelpRequestHandler extends BaseRequestHandler {
 
+    /**
+     * A constructor that creates a new Object of the request handler,
+     * with {@link OAuthAdapter} and {@link ApplicationContext}.
+     *
+     * @param clientAdapter      the client adapter used
+     *                           for verification of provided access token,
+     *                           if the handler give access to protected resource,
+     *                           or performs protected operation.
+     * @param applicationContext The Spring app context.
+     *                           If the handler needs additional functionality
+     *                           from the app.
+     */
     public HelpRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext

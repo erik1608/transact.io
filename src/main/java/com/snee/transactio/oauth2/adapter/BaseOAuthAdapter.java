@@ -39,7 +39,7 @@ public abstract class BaseOAuthAdapter implements OAuthAdapter {
     /**
      * Finds and returns the registered client object with its respective adapter.
      *
-     * @param clientCred a token identifying the client, must be the client id or <clientId>:<clientSecret>.
+     * @param clientCred a token identifying the client, must be the client id or {@code clientId}:{@code clientSecret}.
      * @return the instance of {@link RegisteredClient}.
      * @throws IllegalArgumentException If the clientCred param is null or empty.
      */

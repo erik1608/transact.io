@@ -23,6 +23,7 @@ import java.util.Optional;
  * Slot values: <br>
  * N/A
  */
+@SuppressWarnings("unused")
 public class AlexaLaunchRequestHandler extends BaseRequestHandler {
 
     private static final String LAUNCH_RESPONSE =
@@ -31,6 +32,18 @@ public class AlexaLaunchRequestHandler extends BaseRequestHandler {
             " or to send money to any configured recipient." +
             " What action would you like to perform?";
 
+    /**
+     * A constructor that creates a new Object of the request handler,
+     * with {@link OAuthAdapter} and {@link ApplicationContext}.
+     *
+     * @param clientAdapter      the client adapter used
+     *                           for verification of provided access token,
+     *                           if the handler give access to protected resource,
+     *                           or performs protected operation.
+     * @param applicationContext The Spring app context.
+     *                           If the handler needs additional functionality
+     *                           from the app.
+     */
     public AlexaLaunchRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext

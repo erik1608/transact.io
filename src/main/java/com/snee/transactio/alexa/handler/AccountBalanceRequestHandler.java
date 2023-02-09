@@ -25,8 +25,21 @@ import java.util.Optional;
  * Slot values: <br>
  * {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}} - ["checking account"]
  */
+@SuppressWarnings("unused")
 public class AccountBalanceRequestHandler extends BaseRequestHandler {
 
+    /**
+     * A constructor that creates a new Object of the request handler,
+     * with {@link OAuthAdapter} and {@link ApplicationContext}.
+     *
+     * @param clientAdapter      the client adapter used
+     *                           for verification of provided access token,
+     *                           if the handler give access to protected resource,
+     *                           or performs protected operation.
+     * @param applicationContext The Spring app context.
+     *                           If the handler needs additional functionality
+     *                           from the app.
+     */
     public AccountBalanceRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext

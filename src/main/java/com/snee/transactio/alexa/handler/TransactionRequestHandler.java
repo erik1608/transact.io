@@ -20,6 +20,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Handles the account balance requests. <br>
+ * <p>
+ * Intent - <b>AccountBalanceIntent</b> <br>
+ * Slot names -
+ * <PRE>
+ * [
+ * {@link BaseRequestHandler#ACCOUNT_TYPE_SLOT},
+ * {@link BaseRequestHandler#RECIPIENT_SLOT},
+ * {@link BaseRequestHandler#TRANS_AMOUNT_SLOT}
+ * ]
+ * </PRE>
+ * <p>
+ * Utterance samples:
+ * <ul>
+ *  <li>Alexa, ask <b>transact.io</b>
+ *      to send {{@link BaseRequestHandler#TRANS_AMOUNT_SLOT}}
+ *      credits to {{@link BaseRequestHandler#RECIPIENT_SLOT}}
+ *      using my {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}}.</li>
+ *      <li>Alexa, ask <b>transact.io</b>
+ *      to transfer {{@link BaseRequestHandler#TRANS_AMOUNT_SLOT}}
+ *      credits to {{@link BaseRequestHandler#RECIPIENT_SLOT}}
+ *      using my {{@link BaseRequestHandler#ACCOUNT_TYPE_SLOT}}.</li>
+ * </ul>
+ * <p>
+ * Slot values: <br>
+ * {@link BaseRequestHandler#ACCOUNT_TYPE_SLOT} - ["checking account"].
+ * {@link BaseRequestHandler#RECIPIENT_SLOT} - The user that is friends with you.
+ * {@link BaseRequestHandler#TRANS_AMOUNT_SLOT} - The transaction amount.
+ */
+@SuppressWarnings("unused")
 public class TransactionRequestHandler extends BaseRequestHandler {
 
     private final PushNotificationService mPushNotificationService;
@@ -27,9 +58,16 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     private final TransactionService mTransactionService;
 
     /**
+     * A constructor that creates a new Object of the request handler,
+     * with {@link OAuthAdapter} and {@link ApplicationContext}.
      *
-     * @param clientAdapter
-     * @param applicationContext
+     * @param clientAdapter      the client adapter used
+     *                           for verification of provided access token,
+     *                           if the handler give access to protected resource,
+     *                           or performs protected operation.
+     * @param applicationContext The Spring app context.
+     *                           If the handler needs additional functionality
+     *                           from the app.
      */
     public TransactionRequestHandler(
             OAuthAdapter clientAdapter,
@@ -46,19 +84,26 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     }
 
     /**
+     * Handles the transaction requests.
+     * Intent name - "TransactionIntent".
      *
      * @param handlerInput input to the request handler
-     * @return
+     * @return true if eligible, false otherwise.
      */
     @Override
     public boolean canHandle(HandlerInput handlerInput) {
-        return handlerInput.matches(Predicates.intentName("TransactionIntent"));
+        return handlerInput.matches(
+                Predicates.intentName("TransactionIntent")
+        );
     }
 
     /**
+     * Handles the transaction request,
+     * If a transaction confirmation is required for the request,
+     * sends a push notification for confirmation to the user that made the request.
      *
      * @param handlerInput input to the request handler
-     * @return
+     * @return The response to the handled operation.
      */
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
@@ -93,13 +138,12 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     }
 
     /**
-     *
-     * @param handlerInput
-     * @param user
-     * @param txAmount
-     * @param outgoingAccountName
-     * @param friendAlias
-     * @return
+     * @param handlerInput        The handler input.
+     * @param user                The user that performs the transaction.
+     * @param txAmount            The transaction amount.
+     * @param outgoingAccountName The account name to transfer the funds from.
+     * @param friendAlias         The alias of the friend to send the transaction.
+     * @return The response of the proceeded operation.
      */
     private Optional<Response> processTransaction(
             HandlerInput handlerInput,
@@ -109,7 +153,6 @@ public class TransactionRequestHandler extends BaseRequestHandler {
             String friendAlias
     ) {
         UserRelationMapping friend = getFriend(user, friendAlias);
-
         if (friend == null) {
             String response = String.format(
                     "The user with alias %s is not associated with you. " +
@@ -130,9 +173,15 @@ public class TransactionRequestHandler extends BaseRequestHandler {
                 .append(user.getLastname());
         UserAccount account = user.getAccountByName(outgoingAccountName);
         if (account == null) {
-            responseSpeechBuilder.append(", the requested ")
-                    .append(outgoingAccountName)
-                    .append(" is unknown to your profile.");
+            if (outgoingAccountName != null) {
+                responseSpeechBuilder.append(", the requested ")
+                        .append(outgoingAccountName)
+                        .append(" is unknown to your profile.");
+            } else {
+                responseSpeechBuilder.append(", you did not specify ")
+                        .append("the outgoing account name.");
+            }
+
             return handlerInput.getResponseBuilder()
                     .withSpeech(responseSpeechBuilder.toString())
                     .withSimpleCard(
@@ -168,7 +217,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
                 txAmount
         );
 
-        sendPush(txAmount, device, transaction);
+        sendPush(device, transaction);
 
         responseSpeechBuilder.append(", a push notification has been " +
                 "sent to your device," +
@@ -185,10 +234,11 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     }
 
     /**
+     * Finds a device bound to the user that has a biometric registration.
      *
-     * @param user
-     * @param repo
-     * @return
+     * @param user The user that performs the transaction.
+     * @param repo The {@link Biometrics} repository.
+     * @return The user device that has a biometric registration.
      */
     private static UserDevice getUserDevice(User user, BiometricsRepo repo) {
         for (UserDevice uDevice : user.getUserDevices()) {
@@ -201,10 +251,11 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     }
 
     /**
+     * Gets the friend from the {@link User} friends list.
      *
-     * @param user
-     * @param friendAlias
-     * @return
+     * @param user        The user that made the request.
+     * @param friendAlias the friend alias that is mentioned in the request.
+     * @return The found {@link UserRelationMapping}.
      */
     private UserRelationMapping getFriend(User user, String friendAlias) {
         List<UserRelationMapping> friends = user.getFriends();
@@ -217,13 +268,14 @@ public class TransactionRequestHandler extends BaseRequestHandler {
     }
 
     /**
+     * Sends a push notification to the user,
+     * that has sent the transaction request,
+     * to complete the transaction using the biometry registration.
      *
-     * @param transactionAmount
-     * @param device
-     * @param transaction
+     * @param device      The device to send the push to.
+     * @param transaction The transaction object.
      */
     private void sendPush(
-            int transactionAmount,
             UserDevice device,
             Transaction transaction
     ) {
@@ -233,7 +285,7 @@ public class TransactionRequestHandler extends BaseRequestHandler {
         details.put("type", "transactionConfirmation");
         String message = String.format(
                 "Confirm transaction with total amount %d made using Alexa",
-                transactionAmount
+                transaction.getAmount()
         );
         mPushNotificationService.sendNotification(
                 "Confirm the transaction",

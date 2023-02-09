@@ -39,6 +39,18 @@ public abstract class BaseRequestHandler implements RequestHandler {
     // The slots map with key as slotName and Slot object as the value.
     protected Map<String, Slot> slots;
 
+    /**
+     * A constructor that creates a new Object of the request handler,
+     * with {@link OAuthAdapter} and {@link ApplicationContext}.
+     *
+     * @param clientAdapter      the client adapter used
+     *                           for verification of provided access token,
+     *                           if the handler give access to protected resource,
+     *                           or performs protected operation.
+     * @param applicationContext The Spring app context.
+     *                           If the handler needs additional functionality
+     *                           from the app.
+     */
     public BaseRequestHandler(
             OAuthAdapter clientAdapter,
             ApplicationContext applicationContext
