@@ -7,6 +7,10 @@ import com.snee.transactio.model.Session;
 
 public class LoginRequest implements RequestModel {
 
+    public static final String LOGIN_REQ_MODE_CREATE = "create";
+
+    public static final String LOGIN_REQ_MODE_RENEW = "renew";
+
     @Expose
     private String usernameOrEmail;
 
@@ -23,13 +27,13 @@ public class LoginRequest implements RequestModel {
     private Device deviceInfo;
 
     public void validate() {
-        if ("create".equals(mode)) {
+        if (LOGIN_REQ_MODE_CREATE.equals(mode)) {
             validateUsernameOrEmail();
             validatePassword();
             if (deviceInfo != null) {
                 deviceInfo.validate();
             }
-        } else if ("renew".equals(mode)) {
+        } else if (LOGIN_REQ_MODE_RENEW.equals(mode)) {
             validateSessionData();
         }
     }

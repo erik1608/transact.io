@@ -42,7 +42,7 @@ public class LoginRestController {
 
         LoginResponse response = new LoginResponse();
         response.setStatus(HttpStatus.OK);
-        if ("create".equals(request.getMode())) {
+        if (LoginRequest.LOGIN_REQ_MODE_CREATE.equals(request.getMode())) {
             User user = mUsersService.getUser(
                     request.getUsernameOrEmail()
             );
@@ -65,7 +65,7 @@ public class LoginRestController {
             } else {
                 response.setStatus(HttpStatus.UNAUTHORIZED);
             }
-        } else if ("renew".equals(request.getMode())) {
+        } else if (LoginRequest.LOGIN_REQ_MODE_RENEW.equals(request.getMode())) {
             Session session = mAuthService.validateSession(request.getSessionData());
             response.setSessionData(session);
         } else {
