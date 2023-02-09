@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Base class for the Skill request handlers.
- * Common methods for all request handlers must be implmented here,
+ * Common methods for all request handlers must be implemented here,
  * and should have protected access.
  */
 public abstract class BaseRequestHandler implements RequestHandler {
@@ -30,10 +30,13 @@ public abstract class BaseRequestHandler implements RequestHandler {
 
     protected final Logger LOG = LogManager.getLogger(this.getClass());
 
+    // The OAuth client adapter.
     protected final OAuthAdapter clientAdapter;
 
+    // The Spring application context.
     protected final ApplicationContext applicationContext;
 
+    // The slots map with key as slotName and Slot object as the value.
     protected Map<String, Slot> slots;
 
     public BaseRequestHandler(
@@ -47,9 +50,17 @@ public abstract class BaseRequestHandler implements RequestHandler {
     @Override
     public abstract boolean canHandle(HandlerInput handlerInput);
 
+    /**
+     * Base implementation of the {@link RequestHandler#handle(Object)}
+     * method which just sets the {@link #slots},
+     * obtained from the {@link HandlerInput}.
+     *
+     * @param handlerInput input to the request handler
+     * @return {@link Optional#empty()}.
+     */
     @Override
     public Optional<Response> handle(HandlerInput handlerInput) {
-        // The correct value should be set by
+        // The correct value should be returned by the class that overrides this method.
         IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
         slots = intentRequest.getIntent().getSlots();
         return Optional.empty();
