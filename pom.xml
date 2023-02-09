@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.snee</groupId>
-    <artifactId>transactio</artifactId>
+    <artifactId>transact.io</artifactId>
     <version>0.0.1</version>
     <packaging>war</packaging>
-    <name>transactio</name>
+    <name>transact.io</name>
     <description>
         This is the RestAPI part of a POC application, that is capable of performing transactions using linked Amazon Alexa user voice profile
         and the registered biometric credential used to validate the account owner.
@@ -263,7 +263,6 @@
                 <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
                     <source>11</source>
-                    <target>11</target>
                 </configuration>
             </plugin>
         </plugins>

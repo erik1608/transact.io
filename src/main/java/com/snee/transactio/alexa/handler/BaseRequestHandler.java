@@ -52,7 +52,7 @@ public abstract class BaseRequestHandler implements RequestHandler {
         // The correct value should be set by
         IntentRequest intentRequest = (IntentRequest) handlerInput.getRequestEnvelope().getRequest();
         slots = intentRequest.getIntent().getSlots();
-        return null;
+        return Optional.empty();
     }
 
     /**
