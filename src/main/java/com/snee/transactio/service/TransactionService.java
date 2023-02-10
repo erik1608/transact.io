@@ -38,13 +38,31 @@ public class TransactionService {
     private final PushNotificationService mPNS;
 
 
-    public TransactionService(Repos repos,
-                              PushNotificationService pns) {
+    /**
+     * A microservice that performs transactions.
+     *
+     * @param repos The repositories.
+     * @param pns   The push notification service.
+     */
+    public TransactionService(
+            Repos repos,
+            PushNotificationService pns
+    ) {
         mAccountsRepo = repos.get(UsersAccountRepo.class);
         mTransactionRepo = repos.get(TransactionRepo.class);
         mPNS = pns;
     }
 
+    /**
+     * Starts a transaction in a pending state.
+     *
+     * @param sender           The sender user.
+     * @param outgoingAccount  The sender account.
+     * @param recipient        The recipient user.
+     * @param recipientAccount The recipient account.
+     * @param amount           The transaction amount.
+     * @return {@link Transaction} object in a pending state.
+     */
     @Transactional
     public Transaction performTransaction(
             User sender, UserAccount outgoingAccount,
@@ -52,6 +70,7 @@ public class TransactionService {
             int amount
     ) {
 
+        // Validate the incoming data.
         validateParams(sender, outgoingAccount, recipient, amount);
 
         TransactionResponse.Status status = TransactionResponse.Status.PENDING;
@@ -69,38 +88,22 @@ public class TransactionService {
         return transaction;
     }
 
-    private static void validateParams(
-            User sender,
-            UserAccount outgoingAccount,
-            User recipient,
-            int amount
-    ) {
-        if (recipient.equals(sender) ||
-                recipient.getUsername().equals(sender.getUsername())) {
-
-            throw new RequestValidationException(
-                    "Invalid recipient account"
-            );
-        }
-
-        if (amount == 0 ||
-                amount > outgoingAccount.getBalance()) {
-
-            throw new RequestValidationException(
-                    "Insufficient account balance"
-            );
-        }
-    }
-
+    /**
+     * Completes the transaction with the specified id, if it exists.
+     * Once the transaction found a push notification will be sent.
+     *
+     * @param transactionId The transaction id to complete.
+     * @return {@link TransactionResponse} the response of the transaction.
+     */
     @Transactional
     public TransactionResponse completeTransaction(String transactionId) {
         TransactionResponse response = new TransactionResponse();
-        Transaction transaction;
         Example<Transaction> transactionExample = Example.of(
                 new Transaction().setTransactionId(transactionId),
                 TRANSACTION_ID_MATCHER
         );
 
+        Transaction transaction;
         Optional<Transaction> tx = mTransactionRepo.findOne(transactionExample);
         if (tx.isPresent()) {
             transaction = tx.get();
@@ -133,6 +136,7 @@ public class TransactionService {
                     " has sent you " + transaction.getAmount() +
                     " credits to your " + transaction.getRecipientAccount().getNumber() + " account";
 
+            // Construct the transaction details for push notification.
             HashMap<String, String> transactionDetails = new HashMap<>();
             transactionDetails.put("type", "transactionDetails");
             transactionDetails.put("transactionId", transactionId);
@@ -153,6 +157,32 @@ public class TransactionService {
                     .setTransactionId(transaction.getTransactionId())
                     .setStatus(TransactionResponse.Status.COMPLETED)
                     .setRecipientAccountNumber(recipientAccount.getNumber());
+        }
+    }
+
+    private static void validateParams(
+            User sender,
+            UserAccount account,
+            User recipient,
+            int amount
+    ) {
+
+        String recipientUser = recipient.getUsername();
+        String senderUser = sender.getUsername();
+        int senderBalance = account.getBalance();
+
+        // Check if the user sends money to himself.
+        if (recipient.equals(sender) || recipientUser.equals(senderUser)) {
+            throw new RequestValidationException(
+                    "Invalid recipient account"
+            );
+        }
+
+        // Check if there is sufficient amount of money in the account.
+        if (amount == 0 || amount > senderBalance) {
+            throw new RequestValidationException(
+                    "Insufficient account balance"
+            );
         }
     }
 }
