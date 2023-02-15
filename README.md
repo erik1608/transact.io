@@ -11,16 +11,16 @@ and the registered biometric credential used to validate the account owner.
 
 ## <p style="text-align: center;" >Use scenario</p>
 
-*   The user creates an account using the **Transact.IO** client on their Android (Currently only platform supported)
+* The user creates an account using the **Transact.IO** client on their Android (Currently only platform supported)
   device.
-*   The user navigates to "**Settings**" and creates a Biometric credential.
-*   The user opens Alexa application and navigates to the "**Skill & Games**" view.
-*   Searches for the **Transact.IO** skill and enables it.
-*   Above step will opt the user to **Transact.IO** application and will require a consent of account information use.
-*   Once accepted the user will automatically be navigated back to the Amazon Alexa app
-*   The linkage will be completed successfully if the user accepts the consent of account information use.
-*   Send a friend request to another user, for the ability to send them credits.
-*   If the friend request has been approved ask Alexa to send money to the new friend.
+* The user navigates to "**Settings**" and creates a Biometric credential.
+* The user opens Alexa application and navigates to the "**Skill & Games**" view.
+* Searches for the **Transact.IO** skill and enables it.
+* Above step will opt the user to **Transact.IO** application and will require a consent of account information use.
+* Once accepted the user will automatically be navigated back to the Amazon Alexa app
+* The linkage will be completed successfully if the user accepts the consent of account information use.
+* Send a friend request to another user, for the ability to send them credits.
+* If the friend request has been approved ask Alexa to send money to the new friend.
 
 That is it!
 
@@ -28,10 +28,10 @@ That is it!
 
 ### Prerequisites
 
-*   JDK (Version: 11.0.3 or higher)
-*   Maven (Version: 3.8.1)
-*   Tomcat (Version: 10.0.27 or higher) - Optional
-*   PostgreSQL (Version: 14 or higher)
+* JDK (Version: 11.0.3 or higher)
+* Maven (Version: 3.8.1)
+* Tomcat (Version: 10.0.27 or higher) - Optional
+* PostgreSQL (Version: 14 or higher)
 
 ### Process
 
@@ -67,6 +67,14 @@ mvn clean package
 Once the command finished the execution in the "**target/**" folder within the project root directory. <br>
 In the directory there will be a generated "**transactio-${project.version}.war**" file, which can be deployed to
 the <u>**Tomcat**</u> server.
+
+<h2>Contributing</h2>
+
+Everyone is welcome to contributions of any kind. Here are some suggestions on how you are able to contribute
+
+- add missing Amazon Alexa request handlers
+- suggest/implement support for new features
+- report/fix any bugs you encounter while using TransactIO
 
 ## Note:
 
