@@ -21,6 +21,13 @@
         <java.version>11</java.version>
         <project.build.finalName>transactio</project.build.finalName>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub erik1608 Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/erik1608/transact.io</url>
+        </repository>
+    </distributionManagement>
     <dependencies>
         <!--suppress VulnerableLibrariesLocal-->
         <!-- START: Spring Boot -->
